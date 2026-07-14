@@ -1,0 +1,18 @@
+[Unit]
+Description=BME690 dry-aging fridge logger
+After=multi-user.target
+Wants=multi-user.target
+
+[Service]
+Type=simple
+User=tan
+SupplementaryGroups=i2c
+WorkingDirectory=/home/tan/dry_age_monitor
+ExecStart=/home/tan/dry_age_monitor/.venv/bin/python /home/tan/dry_age_monitor/main.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
