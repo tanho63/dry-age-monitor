@@ -14,6 +14,7 @@ suppressPackageStartupMessages({
   library(lubridate)
   library(glue)
   library(ggplot2)
+  library(geomtextpath)
   library(scales)
   library(ragg)
   library(tantastic)
@@ -77,7 +78,8 @@ plot_rolling_metric <- function(
   metric_units = NULL,
   timestamp_limits = NULL,
   metric_breaks_width = 1,
-  metric_limits = NULL
+  metric_limits = NULL,
+  metric_reference_lines = NULL
 ) {
   plot_pivot <- readings |>
     dplyr::select(
@@ -115,7 +117,8 @@ plot_rolling_metric <- function(
       names_to = "metric_type",
       values_to = "value"
     )
-  plot_pivot |>
+
+  plot <- plot_pivot |>
     dplyr::filter(metric_type != "raw_value") |>
     ggplot(aes(x = timestamp)) +
     geom_line(aes(y = value, color = metric_type), size = 1) +
@@ -123,13 +126,14 @@ plot_rolling_metric <- function(
       base_size = 12,
       plot_title_size = 16,
       caption_size = 10
-      ) +
+    ) +
     scale_y_continuous(
       limits = metric_limits,
       minor_breaks = scales::minor_breaks_width(metric_breaks_width, 0)
     ) +
     scale_x_datetime(
       limits = timestamp_limits,
+      expand = ggplot2::expansion(c(0,0.1)),
       timezone = "America/Toronto"
     ) +
     labs(
@@ -140,6 +144,20 @@ plot_rolling_metric <- function(
       y = metric_units
     ) +
     theme(legend.position = "top")
+
+  if (!is.null(metric_reference_lines)) {
+    suppressWarnings({
+      plot <- plot +
+        geom_texthline(
+          yintercept = metric_reference_lines$y,
+          label = metric_reference_lines$label,
+          color = "white",
+          hjust = 1,
+          data = metric_reference_lines
+        )
+    })
+  }
+  return(plot)
 }
 
 plot_rolling_metric(
@@ -149,7 +167,11 @@ plot_rolling_metric(
   plot_title = "Temperature",
   metric_units = "degrees F",
   timestamp_limits = NULL,
-  metric_limits = c(NA, 48)
+  metric_limits = c(NA, 48),
+  metric_reference_lines = data.frame(
+    y = c(32, 34, 38, 40),
+    label = c("freezing", "lower", "upper", "danger")
+  )
 )
 ```
 
@@ -164,7 +186,11 @@ plot_rolling_metric(
   plot_subtitle = "Percentage of theoretical maximum water vapor that can be held in the air at this temperature",
   metric_units = "Percent",
   timestamp_limits = NULL,
-  metric_limits = NULL
+  metric_limits = NULL,
+  metric_reference_lines = data.frame(
+    y = c(80,85,100),
+    label = c("lower","upper","saturation")
+  )
 )
 ```
 
@@ -179,7 +205,11 @@ plot_rolling_metric(
   plot_subtitle = "Reaching zero indicates saturation/condensation",
   metric_units = "degrees F",
   timestamp_limits = NULL,
-  metric_limits = NULL
+  metric_limits = NULL,
+  metric_reference_lines = data.frame(
+    y = 0,
+    label = "saturation"
+  )
 )
 ```
 
@@ -194,7 +224,8 @@ plot_rolling_metric(
   metric_units = "hPa",
   timestamp_limits = NULL,
   metric_breaks_width = 100,
-  metric_limits = NULL
+  metric_limits = NULL,
+  metric_reference_lines = NULL
 )
 ```
 
@@ -210,7 +241,8 @@ plot_rolling_metric(
   metric_units = "hPa",
   timestamp_limits = NULL,
   metric_limits = NULL,
-  metric_breaks_width = 1000
+  metric_breaks_width = 1000,
+  metric_reference_lines = NULL
 )
 ```
 
