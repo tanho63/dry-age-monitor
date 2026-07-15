@@ -93,8 +93,9 @@ plot_rolling_metric <- function(
   roll_minutes,
   plot_title = NULL,
   plot_subtitle = NULL,
-  metric_units = NULL,
   timestamp_limits = NULL,
+  timestamp_reference_lines = NULL,
+  metric_units = NULL,
   metric_breaks_width = 1,
   metric_limits = NULL,
   metric_reference_lines = NULL
@@ -151,7 +152,7 @@ plot_rolling_metric <- function(
     ) +
     scale_x_datetime(
       limits = timestamp_limits,
-      expand = ggplot2::expansion(c(0,0.1)),
+      expand = ggplot2::expansion(c(0, 0.1)),
       timezone = "America/Toronto"
     ) +
     labs(
@@ -175,6 +176,20 @@ plot_rolling_metric <- function(
         )
     })
   }
+
+  if (!is.null(timestamp_reference_lines)) {
+    suppressWarnings({
+      plot <- plot +
+        geom_textvline(
+          xintercept = timestamp_reference_lines$x,
+          label = timestamp_reference_lines$label,
+          color = "white",
+          hjust = 1,
+          data = timestamp_reference_lines
+        )
+    })
+  }
+
   return(plot)
 }
 
@@ -184,21 +199,18 @@ plot_rolling_metric(
   roll_minutes = roll_minutes,
   plot_title = "Temperature",
   metric_units = "degrees F",
-  timestamp_limits = NULL,
   metric_limits = c(NA, 48),
   metric_reference_lines = data.frame(
     y = c(32, 34, 38, 40),
     label = c("freezing", "lower", "upper", "danger")
+  ),
+  timestamp_reference_lines = tibble::tribble(
+    ~x                                            , ~label                   ,
+    lubridate::as_datetime("2026-07-14 22:00:00") , "initial monitor setup"  ,
+    lubridate::as_datetime("2026-07-15 19:00:00") , "USB fan install"        ,
   )
 )
 ```
-
-    ## Warning: Using `size` aesthetic for lines was deprecated in
-    ## ggplot2 3.4.0.
-    ## ℹ Please use `linewidth` instead.
-    ## This warning is displayed once per session.
-    ## Call ]8;;x-r-run:lifecycle::last_lifecycle_warnings()lifecycle::last_lifecycle_warnings()]8;; to see where
-    ## this warning was generated.
 
 ![](log_analysis_files/figure-gfm/plot-1.png)<!-- -->
 
@@ -210,11 +222,15 @@ plot_rolling_metric(
   plot_title = "Relative Humidity",
   plot_subtitle = "Percentage of theoretical maximum water vapor that can be held in the air at this temperature",
   metric_units = "Percent",
-  timestamp_limits = NULL,
+  timestamp_reference_lines = tibble::tribble(
+    ~x                                            , ~label                   ,
+    lubridate::as_datetime("2026-07-14 22:00:00") , "initial monitor setup"  ,
+    lubridate::as_datetime("2026-07-15 19:00:00") , "USB fan install"        ,
+  ),
   metric_limits = NULL,
   metric_reference_lines = data.frame(
-    y = c(80,85,100),
-    label = c("lower","upper","saturation")
+    y = c(80, 85, 100),
+    label = c("lower", "upper", "saturation")
   )
 )
 ```
@@ -229,7 +245,11 @@ plot_rolling_metric(
   plot_title = "Temp Minus Dewpoint",
   plot_subtitle = "Reaching zero indicates saturation/condensation",
   metric_units = "degrees F",
-  timestamp_limits = NULL,
+  timestamp_reference_lines = tibble::tribble(
+    ~x                                            , ~label                   ,
+    lubridate::as_datetime("2026-07-14 22:00:00") , "initial monitor setup"  ,
+    lubridate::as_datetime("2026-07-15 19:00:00") , "USB fan install"        ,
+  ),
   metric_limits = NULL,
   metric_reference_lines = data.frame(
     y = 0,
