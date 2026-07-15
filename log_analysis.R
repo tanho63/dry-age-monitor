@@ -1,3 +1,4 @@
+roll_minutes <- 30
 readings <- list.files(path = "logs",full.names = TRUE) |>
   purrr::map(readLines) |>
   unlist() |>
@@ -6,21 +7,25 @@ readings <- list.files(path = "logs",full.names = TRUE) |>
   tidyr::unnest_wider(1) |>
   dplyr::mutate(
     timestamp = lubridate::as_datetime(timestamp),
-    temp_rolling = slider::slide_dbl(temperature_c, mean, .before = 60),
-    humidity_rolling = slider::slide_dbl(humidity_pct, mean, .before = 60)
+    temperature_f = (temperature_c * 9/5) + 32,
+    temp_rolling = slider::slide_dbl(temperature_f, mean, .before = 2 * roll_minutes),
+    humidity_rolling = slider::slide_dbl(humidity_pct, mean, .before = 2 * roll_minutes)
   )
 
 readings |>
   ggplot2::ggplot(ggplot2::aes(x = timestamp)) +
   ggplot2::geom_point(ggplot2::aes(y = temp_rolling)) +
   tantastic::theme_tantastic(base_size = 16, plot_title_size = 20) +
-  ggplot2::scale_y_continuous(limits = c(0, NA)) +
+  ggplot2::scale_y_continuous(
+    limits = c(32, NA),
+    breaks = seq.int(32, max(readings$temp_rolling))
+  ) +
   ggplot2::scale_x_datetime(timezone = "America/Toronto") +
   ggplot2::labs(
     title = "Temperature",
-    subtitle = "Rolling mean of last 30 minutes",
+    subtitle = glue::glue("Rolling mean of last {roll_minutes} minutes"),
     x = "Timestamp (America/Toronto)",
-    y = "°C"
+    y = "°F"
   )
 
 readings |>
@@ -31,7 +36,7 @@ readings |>
   ggplot2::scale_x_datetime(timezone = "America/Toronto") +
   ggplot2::labs(
     title = "Humidity",
-    subtitle = "Rolling mean of last 30 minutes",
+    subtitle = glue::glue("Rolling mean of last {roll_minutes} minutes"),
     x = "Timestamp (America/Toronto)",
     y = "%"
   )
