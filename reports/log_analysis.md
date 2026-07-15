@@ -205,9 +205,9 @@ plot_rolling_metric(
     label = c("freezing", "lower", "upper", "danger")
   ),
   timestamp_reference_lines = tibble::tribble(
-    ~x                                            , ~label                   ,
-    lubridate::as_datetime("2026-07-14 22:00:00") , "initial monitor setup"  ,
-    lubridate::as_datetime("2026-07-15 19:00:00") , "USB fan install"        ,
+    ~x                                                , ~label                  ,
+    lubridate::as_datetime("2026-07-14 22:00:00 UTC") , "initial monitor setup" ,
+    lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "USB fan install"       ,
   )
 )
 ```
@@ -223,9 +223,9 @@ plot_rolling_metric(
   plot_subtitle = "Percentage of theoretical maximum water vapor that can be held in the air at this temperature",
   metric_units = "Percent",
   timestamp_reference_lines = tibble::tribble(
-    ~x                                            , ~label                   ,
-    lubridate::as_datetime("2026-07-14 22:00:00") , "initial monitor setup"  ,
-    lubridate::as_datetime("2026-07-15 19:00:00") , "USB fan install"        ,
+    ~x                                                , ~label                  ,
+    lubridate::as_datetime("2026-07-14 22:00:00")     , "initial monitor setup" ,
+    lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "USB fan install"       ,
   ),
   metric_limits = NULL,
   metric_reference_lines = data.frame(
@@ -246,9 +246,9 @@ plot_rolling_metric(
   plot_subtitle = "Reaching zero indicates saturation/condensation",
   metric_units = "degrees F",
   timestamp_reference_lines = tibble::tribble(
-    ~x                                            , ~label                   ,
-    lubridate::as_datetime("2026-07-14 22:00:00") , "initial monitor setup"  ,
-    lubridate::as_datetime("2026-07-15 19:00:00") , "USB fan install"        ,
+    ~x                                                , ~label                  ,
+    lubridate::as_datetime("2026-07-14 22:00:00")     , "initial monitor setup" ,
+    lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "USB fan install"       ,
   ),
   metric_limits = NULL,
   metric_reference_lines = data.frame(
