@@ -29,6 +29,7 @@ Parameters
 
 ``` r
 roll_minutes <- 30
+log_frequency <- 30 # number of seconds between logs
 ```
 
 ``` r
@@ -62,11 +63,28 @@ readings <- list.files(path = "data", full.names = TRUE) |>
     timestamp = lubridate::as_datetime(timestamp),
     temperature_f = c_to_f(temperature_c),
     dew_point_f = .dew_point(temperature_c, humidity_pct) |> c_to_f(),
-    temp_minus_dewpoint = temperature_f - dew_point_f
+    temp_minus_dewpoint = temperature_f - dew_point_f,
+    temp_zone = dplyr::case_when(
+      temperature_f >= 40 ~ "danger",
+      temperature_f >= 38 ~ "above target",
+      dplyr::between(temperature_f, 34, 38) ~ "target",
+      temperature_f >= 32 ~ "below target",
+      temperature_f < 32 ~ "below freezing"
+    ),
+    humidity_zone = dplyr::case_when(
+      humidity_pct >= 100 ~ "saturation",
+      humidity_pct >= 85 ~ "above target",
+      humidity_pct >= 75 ~ "target",
+      humidity_pct < 75 ~ "below target"
+    ),
+    dewpoint_zone = dplyr::case_when(
+      temp_minus_dewpoint > 0 ~ "ok",
+      temp_minus_dewpoint <= 0 ~ "saturation"
+    )
   )
 ```
 
-Plots
+Rolling Average Plots
 
 ``` r
 plot_rolling_metric <- function(
@@ -174,6 +192,13 @@ plot_rolling_metric(
   )
 )
 ```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in
+    ## ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+    ## This warning is displayed once per session.
+    ## Call ]8;;x-r-run:lifecycle::last_lifecycle_warnings()lifecycle::last_lifecycle_warnings()]8;; to see where
+    ## this warning was generated.
 
 ![](log_analysis_files/figure-gfm/plot-1.png)<!-- -->
 
