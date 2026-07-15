@@ -101,7 +101,7 @@ readings |>
   )
 ```
 
-    ## Warning: Removed 108 rows containing missing values or values outside the scale range
+    ## Warning: Removed 116 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
 ![](log_analysis_files/figure-gfm/parse-3.png)<!-- -->

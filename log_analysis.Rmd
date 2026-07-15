@@ -2,7 +2,10 @@
 title: "Dry Age Log Analysis"
 author: Tan Ho
 date: "`r Sys.Date()`"
-output: github_document
+output:
+  github_document:
+  html_document:
+    self_contained: true
 ---
 
 Parameters
@@ -29,7 +32,7 @@ system("scp tan@relicanth:/home/tan/dry_age_monitor/logs/* logs")
 ```
 
 ```{r parse}
-readings <- list.files(path = "logs",full.names = TRUE) |>
+readings <- list.files(path = "logs", full.names = TRUE) |>
   purrr::map(readLines) |>
   unlist() |>
   purrr::map(jsonlite::parse_json) |>
@@ -39,21 +42,105 @@ readings <- list.files(path = "logs",full.names = TRUE) |>
     timestamp = lubridate::as_datetime(timestamp),
     temperature_f = c_to_f(temperature_c),
     dew_point = .dew_point(temperature_c, humidity_pct) |> c_to_f(),
-    tempf_rolling = slider::slide_dbl(temperature_f, mean, .before = 2 * roll_minutes),
-    tempc_rolling = slider::slide_dbl(temperature_c, mean, .before = 2 * roll_minutes),
-    humidity_rolling = slider::slide_dbl(humidity_pct, mean, .before = 2 * roll_minutes),
-    dew_point_rolling = slider::slide_dbl(dew_point, mean, .before = 2 * roll_minutes),
-    pressure_rolling = slider::slide_dbl(pressure_hpa, mean, .before = 2 * roll_minutes),
-    gas_rolling = slider::slide_dbl(gas_ohms, mean, .before = 2 * roll_minutes)
+    tempf_rollmean = slider::slide_dbl(
+      temperature_f,
+      mean,
+      .before = 2 * roll_minutes
+    ),
+    tempf_rollmax = slider::slide_dbl(
+      temperature_f,
+      \(x) quantile(x, 0.95),
+      .before = 2 * roll_minutes
+    ),
+    tempf_rollmin = slider::slide_dbl(
+      temperature_f,
+      \(x) quantile(x, 0.05),
+      .before = 2 * roll_minutes
+    ),
+    humidity_rollmean = slider::slide_dbl(
+      humidity_pct,
+      mean,
+      .before = 2 * roll_minutes
+    ),
+    humidity_rollmax = slider::slide_dbl(
+      humidity_pct,
+      \(x) quantile(x, 0.95),
+      .before = 2 * roll_minutes
+    ),
+    humidity_rollmin = slider::slide_dbl(
+      humidity_pct,
+      \(x) quantile(x, 0.05),
+      .before = 2 * roll_minutes
+    ),
+    dew_point_rollmean = slider::slide_dbl(
+      dew_point,
+      mean,
+      .before = 2 * roll_minutes
+    ),
+    dew_point_rollmax = slider::slide_dbl(
+      dew_point,
+      \(x) quantile(x, 0.95),
+      .before = 2 * roll_minutes
+    ),
+    dew_point_rollmin = slider::slide_dbl(
+      dew_point,
+      \(x) quantile(x, 0.05),
+      .before = 2 * roll_minutes
+    ),
+    pressure_rollmean = slider::slide_dbl(
+      pressure_hpa,
+      mean,
+      .before = 2 * roll_minutes
+    ),
+    pressure_rollmax = slider::slide_dbl(
+      pressure_hpa,
+      \(x) quantile(x, 0.95),
+      .before = 2 * roll_minutes
+    ),
+    pressure_rollmin = slider::slide_dbl(
+      pressure_hpa,
+      \(x) quantile(x, 0.05),
+      .before = 2 * roll_minutes
+    ),
+    gas_rollmean = slider::slide_dbl(
+      gas_ohms,
+      mean,
+      .before = 2 * roll_minutes
+    ),
+    gas_rollmax = slider::slide_dbl(
+      gas_ohms,
+      \(x) quantile(x, 0.95),
+      .before = 2 * roll_minutes
+    ),
+    gas_rollmin = slider::slide_dbl(
+      gas_ohms,
+      \(x) quantile(x, 0.05),
+      .before = 2 * roll_minutes
+    )
   )
-
+```
+Plots
+```{r plot}
 readings |>
   ggplot2::ggplot(ggplot2::aes(x = timestamp)) +
-  ggplot2::geom_point(ggplot2::aes(y = tempf_rolling)) +
+  ggplot2::geom_line(ggplot2::aes(y = tempf_rollmean)) +
+  ggplot2::geom_point(
+    ggplot2::aes(y = tempf_rollmax),
+    size = 1,
+    color = "lightblue"
+  ) +
+  ggplot2::geom_point(
+    ggplot2::aes(y = tempf_rollmin),
+    size = 1,
+    color = "darkblue"
+  ) +
   tantastic::theme_tantastic(base_size = 16, plot_title_size = 20) +
   ggplot2::scale_y_continuous(
-    limits = c(32, NA),
-    breaks = seq.int(32, max(readings$tempf_rolling))
+    limits = c(NA, 48),
+    minor_breaks = seq.int(
+      min(readings$tempf_rollmin),
+      max(readings$tempf_rollmax)
+    )
   ) +
   ggplot2::scale_x_datetime(timezone = "America/Toronto") +
   ggplot2::labs(
@@ -62,12 +149,26 @@ readings |>
     x = "Timestamp (America/Toronto)",
     y = "°F"
   )
-
 readings |>
   ggplot2::ggplot(ggplot2::aes(x = timestamp)) +
-  ggplot2::geom_point(ggplot2::aes(y = humidity_rolling)) +
+  ggplot2::geom_line(ggplot2::aes(y = humidity_rollmean)) +
+  ggplot2::geom_point(
+    ggplot2::aes(y = humidity_rollmax),
+    size = 1,
+    color = "lightblue"
+  ) +
+  ggplot2::geom_point(
+    ggplot2::aes(y = humidity_rollmin),
+    size = 1,
+    color = "darkblue"
+  ) +
   tantastic::theme_tantastic(base_size = 16, plot_title_size = 20) +
-  ggplot2::scale_y_continuous(limits = c(20, 100)) +
+  ggplot2::scale_y_continuous(
+    minor_breaks = seq.int(
+      min(readings$humidity_rollmin),
+      max(readings$humidity_rollmax)
+    )
+  ) +
   ggplot2::scale_x_datetime(timezone = "America/Toronto") +
   ggplot2::labs(
     title = "Relative Humidity",
@@ -78,9 +179,11 @@ readings |>
 
 readings |>
   ggplot2::ggplot(ggplot2::aes(x = timestamp)) +
-  ggplot2::geom_point(ggplot2::aes(y = tempf_rolling - dew_point_rolling)) +
+  ggplot2::geom_point(ggplot2::aes(y = tempf_rollmean - dew_point_rollmean)) +
+  ggplot2::geom_point(ggplot2::aes(y = tempf_rollmax - dew_point_rollmax), color = "lightblue") +
+  ggplot2::geom_point(ggplot2::aes(y = tempf_rollmin - dew_point_rollmin), color = "darkblue") +
   tantastic::theme_tantastic(base_size = 16, plot_title_size = 20) +
-  ggplot2::scale_y_continuous(limits = c(-8, 8)) +
+  # ggplot2::scale_y_continuous(limits = c(-8, 8)) +
   ggplot2::scale_x_datetime(timezone = "America/Toronto") +
   ggplot2::labs(
     title = "Temperature Minus Dew Point",
@@ -91,7 +194,9 @@ readings |>
 
 readings |>
   ggplot2::ggplot(ggplot2::aes(x = timestamp)) +
-  ggplot2::geom_point(ggplot2::aes(y = pressure_rolling)) +
+  ggplot2::geom_point(ggplot2::aes(y = pressure_rollmean)) +
+  ggplot2::geom_point(ggplot2::aes(y = pressure_rollmax), color = "lightblue") +
+  ggplot2::geom_point(ggplot2::aes(y = pressure_rollmin), color = "darkblue") +
   tantastic::theme_tantastic(base_size = 16, plot_title_size = 20) +
   # ggplot2::scale_y_continuous(limits = c(-8, 8)) +
   ggplot2::scale_x_datetime(timezone = "America/Toronto") +
@@ -104,7 +209,9 @@ readings |>
 
 readings |>
   ggplot2::ggplot(ggplot2::aes(x = timestamp)) +
-  ggplot2::geom_point(ggplot2::aes(y = gas_rolling)) +
+  ggplot2::geom_point(ggplot2::aes(y = gas_rollmean)) +
+  ggplot2::geom_point(ggplot2::aes(y = gas_rollmax), color = "lightblue") +
+  ggplot2::geom_point(ggplot2::aes(y = gas_rollmin), color = "darkblue") +
   tantastic::theme_tantastic(base_size = 16, plot_title_size = 20) +
   # ggplot2::scale_y_continuous(limits = c(-8, 8)) +
   ggplot2::scale_x_datetime(timezone = "America/Toronto") +
