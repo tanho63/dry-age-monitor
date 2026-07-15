@@ -3,7 +3,7 @@
 BME690 environmental logger for a dry-aging fridge.
 
 Logs temperature, humidity, pressure, and raw gas resistance once per minute
-to a daily jsonl file. 
+to a daily jsonl file.
 """
 
 import json
@@ -16,7 +16,7 @@ import bme690
 
 #### CONFIG ####
 LOG_DIR = os.path.expanduser("~/dry_age_monitor/logs")
-INTERVAL_SECONDS = 30                   
+INTERVAL_SECONDS = 30
 WARMUP_SECONDS = 10           # let the sensor settle before recording
 TEMP_OFFSET_C = -0.0          # self-heating correction; calibrate against thermometer
 

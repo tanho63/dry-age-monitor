@@ -17,8 +17,12 @@ suppressPackageStartupMessages({
   library(scales)
   library(ragg)
   library(tantastic)
+  library(here)
 })
+here::i_am("reports/log_analysis.Rmd")
 ```
+
+    ## here() starts at /home/tan/_github/dry-age-monitor
 
 Parameters
 
@@ -40,14 +44,14 @@ c_to_f <- function(temp_c) (temp_c * 9/5) + 32
 f_to_c <- function(temp_f) (temp_f - 32) * 5/9
 ```
 
-Data Pull
+Pull data via system scp call into the data folder at top level
 
 ``` r
-system("scp tan@relicanth:/home/tan/dry_age_monitor/logs/* logs")
+system("scp tan@relicanth:/home/tan/dry_age_monitor/logs/* data")
 ```
 
 ``` r
-readings <- list.files(path = "logs", full.names = TRUE) |>
+readings <- list.files(path = "data", full.names = TRUE) |>
   purrr::map(readLines) |>
   unlist() |>
   purrr::map(jsonlite::parse_json) |>
