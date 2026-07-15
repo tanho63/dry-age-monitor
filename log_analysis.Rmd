@@ -1,4 +1,16 @@
+---
+title: "Dry Age Log Analysis"
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: github_document
+---
+
+Parameters
+```{r parameters}
 roll_minutes <- 30
+```
+Utils
+```{r utils}
 .dew_point <- function(temp_c, rh_pct) {
   stopifnot(length(temp_c) == length(rh_pct))
   a <- 17.625
@@ -10,9 +22,13 @@ roll_minutes <- 30
 }
 c_to_f <- function(temp_c) (temp_c * 9/5) + 32
 f_to_c <- function(temp_f) (temp_f - 32) * 5/9
-
+```
+Data Pull
+```{r data_pull}
 system("scp tan@relicanth:/home/tan/dry_age_monitor/logs/* logs")
+```
 
+```{r parse}
 readings <- list.files(path = "logs",full.names = TRUE) |>
   purrr::map(readLines) |>
   unlist() |>
@@ -98,3 +114,4 @@ readings |>
     x = "Timestamp (America/Toronto)",
     y = "Ohms"
   )
+```
