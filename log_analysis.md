@@ -3,13 +3,28 @@ Dry Age Log Analysis
 Tan Ho
 2026-07-15
 
+``` r
+knitr::opts_chunk$set(echo = TRUE, dev = "ragg_png")
+suppressPackageStartupMessages({
+  library(jsonlite)
+  library(dplyr)
+  library(tidyr)
+  library(purrr)
+  library(slider)
+  library(lubridate)
+  library(glue)
+  library(ggplot2)
+  library(scales)
+  library(ragg)
+  library(tantastic)
+})
+```
+
 Parameters
 
 ``` r
 roll_minutes <- 30
 ```
-
-Utils
 
 ``` r
 .dew_point <- function(temp_c, rh_pct) {
@@ -32,7 +47,7 @@ system("scp tan@relicanth:/home/tan/dry_age_monitor/logs/* logs")
 ```
 
 ``` r
-readings <- list.files(path = "logs",full.names = TRUE) |>
+readings <- list.files(path = "logs", full.names = TRUE) |>
   purrr::map(readLines) |>
   unlist() |>
   purrr::map(jsonlite::parse_json) |>
@@ -41,101 +56,158 @@ readings <- list.files(path = "logs",full.names = TRUE) |>
   dplyr::mutate(
     timestamp = lubridate::as_datetime(timestamp),
     temperature_f = c_to_f(temperature_c),
-    dew_point = .dew_point(temperature_c, humidity_pct) |> c_to_f(),
-    tempf_rolling = slider::slide_dbl(temperature_f, mean, .before = 2 * roll_minutes),
-    tempc_rolling = slider::slide_dbl(temperature_c, mean, .before = 2 * roll_minutes),
-    humidity_rolling = slider::slide_dbl(humidity_pct, mean, .before = 2 * roll_minutes),
-    dew_point_rolling = slider::slide_dbl(dew_point, mean, .before = 2 * roll_minutes),
-    pressure_rolling = slider::slide_dbl(pressure_hpa, mean, .before = 2 * roll_minutes),
-    gas_rolling = slider::slide_dbl(gas_ohms, mean, .before = 2 * roll_minutes)
-  )
-
-readings |>
-  ggplot2::ggplot(ggplot2::aes(x = timestamp)) +
-  ggplot2::geom_point(ggplot2::aes(y = tempf_rolling)) +
-  tantastic::theme_tantastic(base_size = 16, plot_title_size = 20) +
-  ggplot2::scale_y_continuous(
-    limits = c(32, NA),
-    breaks = seq.int(32, max(readings$tempf_rolling))
-  ) +
-  ggplot2::scale_x_datetime(timezone = "America/Toronto") +
-  ggplot2::labs(
-    title = "Temperature",
-    subtitle = glue::glue("Rolling mean of last {roll_minutes} minutes"),
-    x = "Timestamp (America/Toronto)",
-    y = "°F"
+    dew_point_f = .dew_point(temperature_c, humidity_pct) |> c_to_f(),
+    temp_minus_dewpoint = temperature_f - dew_point_f
   )
 ```
 
-![](log_analysis_files/figure-gfm/parse-1.png)<!-- -->
+Plots
 
 ``` r
-readings |>
-  ggplot2::ggplot(ggplot2::aes(x = timestamp)) +
-  ggplot2::geom_point(ggplot2::aes(y = humidity_rolling)) +
-  tantastic::theme_tantastic(base_size = 16, plot_title_size = 20) +
-  ggplot2::scale_y_continuous(limits = c(20, 100)) +
-  ggplot2::scale_x_datetime(timezone = "America/Toronto") +
-  ggplot2::labs(
-    title = "Relative Humidity",
-    subtitle = glue::glue("Rolling mean of last {roll_minutes} minutes"),
-    x = "Timestamp (America/Toronto)",
-    y = "%"
-  )
+plot_rolling_metric <- function(
+  metric_name,
+  readings,
+  roll_minutes,
+  plot_title = NULL,
+  plot_subtitle = NULL,
+  metric_units = NULL,
+  timestamp_limits = NULL,
+  metric_breaks_width = 1,
+  metric_limits = NULL
+) {
+  plot_pivot <- readings |>
+    dplyr::select(
+      timestamp,
+      dplyr::all_of(metric_name)
+    ) |>
+    tidyr::pivot_longer(
+      -timestamp,
+      names_to = "metric",
+      values_to = "raw_value"
+    ) |>
+    dplyr::mutate(
+      rollmean = slider::slide_index_dbl(
+        .x = raw_value,
+        .i = timestamp,
+        .f = mean,
+        .before = lubridate::minutes(roll_minutes)
+      ),
+      rollmax = slider::slide_index_dbl(
+        .x = raw_value,
+        .i = timestamp,
+        .f = \(x) quantile(x, 0.95),
+        .before = lubridate::minutes(roll_minutes)
+      ),
+      rollmin = slider::slide_index_dbl(
+        .x = raw_value,
+        .i = timestamp,
+        .f = \(x) quantile(x, 0.05),
+        .before = lubridate::minutes(roll_minutes)
+      ),
+      .by = metric
+    ) |>
+    tidyr::pivot_longer(
+      cols = c("raw_value", "rollmean", "rollmax", "rollmin"),
+      names_to = "metric_type",
+      values_to = "value"
+    )
+  plot_pivot |>
+    dplyr::filter(metric_type != "raw_value") |>
+    ggplot(aes(x = timestamp)) +
+    geom_line(aes(y = value, color = metric_type), size = 1) +
+    tantastic::theme_tantastic(
+      base_size = 12,
+      plot_title_size = 16,
+      caption_size = 10
+      ) +
+    scale_y_continuous(
+      limits = metric_limits,
+      minor_breaks = scales::minor_breaks_width(metric_breaks_width, 0)
+    ) +
+    scale_x_datetime(
+      limits = timestamp_limits,
+      timezone = "America/Toronto"
+    ) +
+    labs(
+      title = plot_title,
+      subtitle = plot_subtitle,
+      caption = glue::glue("Rolling metrics over last {roll_minutes} minutes"),
+      x = "Timestamp (America/Toronto)",
+      y = metric_units
+    ) +
+    theme(legend.position = "top")
+}
+
+plot_rolling_metric(
+  metric_name = "temperature_f",
+  readings = readings,
+  roll_minutes = roll_minutes,
+  plot_title = "Temperature",
+  metric_units = "degrees F",
+  timestamp_limits = NULL,
+  metric_limits = c(NA, 48)
+)
 ```
 
-![](log_analysis_files/figure-gfm/parse-2.png)<!-- -->
+![](log_analysis_files/figure-gfm/plot-1.png)<!-- -->
 
 ``` r
-readings |>
-  ggplot2::ggplot(ggplot2::aes(x = timestamp)) +
-  ggplot2::geom_point(ggplot2::aes(y = tempf_rolling - dew_point_rolling)) +
-  tantastic::theme_tantastic(base_size = 16, plot_title_size = 20) +
-  ggplot2::scale_y_continuous(limits = c(-8, 8)) +
-  ggplot2::scale_x_datetime(timezone = "America/Toronto") +
-  ggplot2::labs(
-    title = "Temperature Minus Dew Point",
-    subtitle = glue::glue("Rolling mean of last {roll_minutes} minutes"),
-    x = "Timestamp (America/Toronto)",
-    y = "°F"
-  )
+plot_rolling_metric(
+  metric_name = "humidity_pct",
+  readings = readings,
+  roll_minutes = roll_minutes,
+  plot_title = "Relative Humidity",
+  plot_subtitle = "Percentage of theoretical maximum water vapor that can be held in the air at this temperature",
+  metric_units = "Percent",
+  timestamp_limits = NULL,
+  metric_limits = NULL
+)
 ```
 
-    ## Warning: Removed 116 rows containing missing values or values outside the scale range
-    ## (`geom_point()`).
-
-![](log_analysis_files/figure-gfm/parse-3.png)<!-- -->
+![](log_analysis_files/figure-gfm/plot-2.png)<!-- -->
 
 ``` r
-readings |>
-  ggplot2::ggplot(ggplot2::aes(x = timestamp)) +
-  ggplot2::geom_point(ggplot2::aes(y = pressure_rolling)) +
-  tantastic::theme_tantastic(base_size = 16, plot_title_size = 20) +
-  # ggplot2::scale_y_continuous(limits = c(-8, 8)) +
-  ggplot2::scale_x_datetime(timezone = "America/Toronto") +
-  ggplot2::labs(
-    title = "Air Pressure",
-    subtitle = glue::glue("Rolling mean of last {roll_minutes} minutes"),
-    x = "Timestamp (America/Toronto)",
-    y = "hPa"
-  )
+plot_rolling_metric(
+  metric_name = "temp_minus_dewpoint",
+  readings = readings,
+  roll_minutes = roll_minutes,
+  plot_title = "Temp Minus Dewpoint",
+  plot_subtitle = "Reaching zero indicates saturation/condensation",
+  metric_units = "degrees F",
+  timestamp_limits = NULL,
+  metric_limits = NULL
+)
 ```
 
-![](log_analysis_files/figure-gfm/parse-4.png)<!-- -->
+![](log_analysis_files/figure-gfm/plot-3.png)<!-- -->
 
 ``` r
-readings |>
-  ggplot2::ggplot(ggplot2::aes(x = timestamp)) +
-  ggplot2::geom_point(ggplot2::aes(y = gas_rolling)) +
-  tantastic::theme_tantastic(base_size = 16, plot_title_size = 20) +
-  # ggplot2::scale_y_continuous(limits = c(-8, 8)) +
-  ggplot2::scale_x_datetime(timezone = "America/Toronto") +
-  ggplot2::labs(
-    title = "Gas",
-    subtitle = glue::glue("Rolling mean of last {roll_minutes} minutes"),
-    x = "Timestamp (America/Toronto)",
-    y = "Ohms"
-  )
+plot_rolling_metric(
+  metric_name = "pressure_hpa",
+  readings = readings,
+  roll_minutes = roll_minutes,
+  plot_title = "Air Pressure",
+  metric_units = "hPa",
+  timestamp_limits = NULL,
+  metric_breaks_width = 100,
+  metric_limits = NULL
+)
 ```
 
-![](log_analysis_files/figure-gfm/parse-5.png)<!-- -->
+![](log_analysis_files/figure-gfm/plot-4.png)<!-- -->
+
+``` r
+plot_rolling_metric(
+  metric_name = "gas_ohms",
+  readings = readings,
+  roll_minutes = roll_minutes,
+  plot_title = "Gas Resistance",
+  plot_subtitle = "Higher values indicate cleaner air = less offgassing",
+  metric_units = "hPa",
+  timestamp_limits = NULL,
+  metric_limits = NULL,
+  metric_breaks_width = 1000
+)
+```
+
+![](log_analysis_files/figure-gfm/plot-5.png)<!-- -->
