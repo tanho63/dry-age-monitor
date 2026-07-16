@@ -13,7 +13,7 @@ output:
     fig_height: 8
 ---
 ```{r setup}
-knitr::opts_chunk$set(echo = TRUE, dev = "ragg_png")
+knitr::opts_chunk$set(echo = FALSE, dev = "ragg_png")
 suppressPackageStartupMessages({
   library(jsonlite)
   library(dplyr)
@@ -34,8 +34,10 @@ here::i_am("reports/log_analysis.Rmd")
 ```
 
 Parameters
-```{r parameters}
+```{r parameters, echo = TRUE}
 roll_minutes <- 30
+start_date <- lubridate::as_datetime("2026-07-15 12:00:00 UTC")
+end_date <- Sys.time()
 timestamp_reference_lines <- tibble::tribble(
   ~timestamp                                        , ~label                                  ,
   lubridate::as_datetime("2026-07-13 11:00:00 UTC") , "ribeye added to fridge"                ,
@@ -94,7 +96,8 @@ readings <- list.files(path = "data", full.names = TRUE) |>
       temp_minus_dewpoint > 0 ~ "ok",
       temp_minus_dewpoint <= 0 ~ "saturation"
     )
-  )
+  ) |>
+    dplyr::filter(timestamp >= start_date & timestamp <= end_date)
 
 ```
 Rolling Average Plots

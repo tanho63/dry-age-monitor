@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-16 16:19:57.954845
+2026-07-16 16:32:55.505661
 
 ``` r
 knitr::opts_chunk$set(echo = TRUE, dev = "ragg_png")
@@ -29,6 +29,8 @@ Parameters
 
 ``` r
 roll_minutes <- 30
+start_date <- lubridate::as_datetime("2026-07-15 12:00:00 UTC")
+end_date <- Sys.time()
 timestamp_reference_lines <- tibble::tribble(
   ~timestamp                                        , ~label                                  ,
   lubridate::as_datetime("2026-07-13 11:00:00 UTC") , "ribeye added to fridge"                ,
@@ -89,7 +91,8 @@ readings <- list.files(path = "data", full.names = TRUE) |>
       temp_minus_dewpoint > 0 ~ "ok",
       temp_minus_dewpoint <= 0 ~ "saturation"
     )
-  )
+  ) |>
+    dplyr::filter(timestamp >= start_date & timestamp <= end_date)
 ```
 
 Rolling Average Plots
