@@ -1,7 +1,6 @@
-Dry Age Log Analysis
+Dry Age Monitor - Log Analysis
 ================
-Tan Ho
-2026-07-15
+2026-07-15 23:15:42.769352
 
 ``` r
 knitr::opts_chunk$set(echo = TRUE, dev = "ragg_png")
@@ -35,6 +34,7 @@ timestamp_reference_lines <- tibble::tribble(
   lubridate::as_datetime("2026-07-14 22:00:00 UTC") , "initial monitor setup"            ,
   lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "USB fan installed vertically"     ,
   lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "USB fan reinstalled horizontally" ,
+  lubridate::as_datetime("2026-07-16 02:40:00 UTC") , "Added one 4L bottle of water"
 )
 ```
 
@@ -189,10 +189,13 @@ plot_rolling_metric <- function(
         geom_labelvline(
           xintercept = timestamp_reference_lines$timestamp,
           label = timestamp_reference_lines$label,
-          color = "black",
-          alpha = 0.8,
-          hjust = 1,
-      linecolor = "white",
+          color = "white",
+          fill = "white",
+          textcolor = "black",
+          alpha = 0.75,
+          size = 3,
+          hjust = 0.5,
+          linetype = 2,
           data = timestamp_reference_lines
         )
     })
@@ -216,11 +219,6 @@ plot_rolling_metric(
 )
 ```
 
-    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-    ## ℹ Please use `linewidth` instead.
-    ## This warning is displayed once per session.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
-
 ![](log_analysis_files/figure-gfm/plot-1.png)<!-- -->
 
 ``` r
@@ -234,7 +232,7 @@ plot_rolling_metric(
   timestamp_reference_lines = timestamp_reference_lines,
   metric_limits = NULL,
   metric_reference_lines = data.frame(
-    y = c(80, 85, 100),
+    y = c(75, 85, 100),
     label = c("lower", "upper", "saturation")
   ),
 )
@@ -252,10 +250,7 @@ plot_rolling_metric(
   metric_units = "degrees F",
   timestamp_reference_lines = timestamp_reference_lines,
   metric_limits = NULL,
-  metric_reference_lines = data.frame(
-    y = 0,
-    label = "saturation"
-  )
+  metric_reference_lines = data.frame(y = 0, label = "saturation")
 )
 ```
 
