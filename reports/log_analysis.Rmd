@@ -36,7 +36,7 @@ here::i_am("reports/log_analysis.Rmd")
 Parameters
 ```{r parameters, echo = TRUE}
 roll_minutes <- 30
-start_date <- lubridate::as_datetime("2026-07-15 12:00:00 UTC")
+start_date <- lubridate::as_datetime("2026-07-13 12:00:00 UTC")
 end_date <- Sys.time()
 timestamp_reference_lines <- tibble::tribble(
   ~timestamp                                        , ~label                                  ,
