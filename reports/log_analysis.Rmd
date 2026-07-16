@@ -193,11 +193,12 @@ plot_rolling_metric <- function(
   if (!is.null(timestamp_reference_lines)) {
     suppressWarnings({
       plot <- plot +
-        geom_textvline(
+        geom_labelvline(
           xintercept = timestamp_reference_lines$timestamp,
           label = timestamp_reference_lines$label,
           color = "white",
-          alpha = 1,
+          textcolor = "black",
+          alpha = 0.75,
           hjust = 0.5,
           linetype = 2,
           data = timestamp_reference_lines

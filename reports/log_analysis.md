@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-16 00:06:00.259526
+2026-07-16 00:53:16.16313
 
 ``` r
 knitr::opts_chunk$set(echo = TRUE, dev = "ragg_png")
@@ -189,11 +189,12 @@ plot_rolling_metric <- function(
   if (!is.null(timestamp_reference_lines)) {
     suppressWarnings({
       plot <- plot +
-        geom_textvline(
+        geom_labelvline(
           xintercept = timestamp_reference_lines$timestamp,
           label = timestamp_reference_lines$label,
           color = "white",
-          alpha = 1,
+          textcolor = "black",
+          alpha = 0.75,
           hjust = 0.5,
           linetype = 2,
           data = timestamp_reference_lines
@@ -218,6 +219,12 @@ plot_rolling_metric(
   timestamp_reference_lines = timestamp_reference_lines
 )
 ```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+    ## This warning is displayed once per session.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
 
 ![](log_analysis_files/figure-gfm/plot-1.png)<!-- -->
 
