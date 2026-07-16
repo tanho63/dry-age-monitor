@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-16 07:52:21.492818
+2026-07-16 16:19:57.954845
 
 ``` r
 knitr::opts_chunk$set(echo = TRUE, dev = "ragg_png")
@@ -16,6 +16,7 @@ suppressPackageStartupMessages({
   library(geomtextpath)
   library(scales)
   library(ragg)
+  library(marquee)
   library(tantastic)
   library(here)
 })
@@ -27,15 +28,15 @@ here::i_am("reports/log_analysis.Rmd")
 Parameters
 
 ``` r
-roll_minutes <- 60
+roll_minutes <- 30
 timestamp_reference_lines <- tibble::tribble(
-  ~timestamp                                        , ~label                             ,
-  lubridate::as_datetime("2026-07-13 11:00:00 UTC") , "ribeye added to fridge"           ,
-  lubridate::as_datetime("2026-07-14 22:00:00 UTC") , "initial monitor setup"            ,
-  lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "usb fan installed vertically"     ,
-  lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "usb fan reinstalled horizontally" ,
-  lubridate::as_datetime("2026-07-16 02:40:00 UTC") , "add one 4L bottle of water"       ,
-  lubridate::as_datetime("2026-07-16 03:40:00 UTC") , "duct-taped cable gaps"            ,
+  ~timestamp                                        , ~label                                  ,
+  lubridate::as_datetime("2026-07-13 11:00:00 UTC") , "ribeye added to fridge"                ,
+  lubridate::as_datetime("2026-07-14 22:00:00 UTC") , "initial monitor setup"                 ,
+  lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "usb fan installed vertically"          ,
+  lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "usb fan reinstalled horizontally"      ,
+  lubridate::as_datetime("2026-07-16 02:40:00 UTC") , "add water jug, duct-tape cable-gaps"   ,
+  lubridate::as_datetime("2026-07-16 19:20:00 UTC") , "more jugs, replace fan, use foam tape" ,
 )
 ```
 
@@ -124,24 +125,46 @@ plot_rolling_metric <- function(
         .f = mean,
         .before = lubridate::minutes(roll_minutes)
       ),
-      rollmax = slider::slide_index_dbl(
+      roll95 = slider::slide_index_dbl(
         .x = raw_value,
         .i = timestamp,
         .f = \(x) quantile(x, 0.95),
         .before = lubridate::minutes(roll_minutes)
       ),
-      rollmin = slider::slide_index_dbl(
+      roll05 = slider::slide_index_dbl(
         .x = raw_value,
         .i = timestamp,
         .f = \(x) quantile(x, 0.05),
         .before = lubridate::minutes(roll_minutes)
       ),
+      roll80 = slider::slide_index_dbl(
+        .x = raw_value,
+        .i = timestamp,
+        .f = \(x) quantile(x, 0.80),
+        .before = lubridate::minutes(roll_minutes)
+      ),
+      roll20 = slider::slide_index_dbl(
+        .x = raw_value,
+        .i = timestamp,
+        .f = \(x) quantile(x, 0.20),
+        .before = lubridate::minutes(roll_minutes)
+      ),
       .by = metric
     ) |>
     tidyr::pivot_longer(
-      cols = c("raw_value", "rollmean", "rollmax", "rollmin"),
+      cols = c("raw_value", starts_with("roll")),
       names_to = "metric_type",
       values_to = "value"
+    ) |>
+    dplyr::mutate(
+      metric_type = forcats::fct_relevel(
+        metric_type,
+        "roll05",
+        "roll20",
+        "rollmean",
+        "roll80",
+        "roll95"
+      )
     )
 
   plot <- plot_pivot |>
@@ -157,11 +180,12 @@ plot_rolling_metric <- function(
     ) +
     scale_y_continuous(
       limits = metric_limits,
+      expand = ggplot2::expansion(c(0.2, 0)),
       minor_breaks = scales::minor_breaks_width(metric_breaks_width, 0)
     ) +
     scale_x_datetime(
       limits = timestamp_limits,
-      expand = ggplot2::expansion(c(0, 0.1)),
+      expand = ggplot2::expansion(c(0.05, 0.1)),
       timezone = "America/Toronto"
     ) +
     labs(
@@ -193,9 +217,13 @@ plot_rolling_metric <- function(
           xintercept = timestamp_reference_lines$timestamp,
           label = timestamp_reference_lines$label,
           color = "white",
+          fill = "white",
           textcolor = "black",
-          alpha = 0.75,
-          hjust = 0.5,
+          label.r = unit(0.05, "lines"),
+          label.padding = unit(0.05, "lines"),
+          alpha = 0.8,
+          hjust = 0.05,
+          linewidth = 0.5,
           linetype = 2,
           data = timestamp_reference_lines
         )
@@ -219,11 +247,6 @@ plot_rolling_metric(
   timestamp_reference_lines = timestamp_reference_lines
 )
 ```
-
-    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-    ## ℹ Please use `linewidth` instead.
-    ## This warning is displayed once per session.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
 
 ![](log_analysis_files/figure-gfm/plot-1.png)<!-- -->
 
