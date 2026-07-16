@@ -282,19 +282,6 @@ plot_rolling_metric(
 )
 
 plot_rolling_metric(
-  metric_name = "pressure_hpa",
-  readings = readings,
-  roll_minutes = roll_minutes,
-  plot_title = "Air Pressure",
-  metric_units = "hPa",
-  timestamp_limits = NULL,
-  timestamp_reference_lines = timestamp_reference_lines,
-  metric_breaks_width = 100,
-  metric_limits = NULL,
-  metric_reference_lines = NULL
-)
-
-plot_rolling_metric(
   metric_name = "gas_ohms",
   readings = readings,
   roll_minutes = roll_minutes,
@@ -305,6 +292,19 @@ plot_rolling_metric(
   timestamp_reference_lines = timestamp_reference_lines,
   metric_limits = NULL,
   metric_breaks_width = 1000,
+  metric_reference_lines = NULL
+)
+
+plot_rolling_metric(
+  metric_name = "pressure_hpa",
+  readings = readings,
+  roll_minutes = roll_minutes,
+  plot_title = "Air Pressure",
+  metric_units = "hPa",
+  timestamp_limits = NULL,
+  timestamp_reference_lines = timestamp_reference_lines,
+  metric_breaks_width = 100,
+  metric_limits = NULL,
   metric_reference_lines = NULL
 )
 ```
