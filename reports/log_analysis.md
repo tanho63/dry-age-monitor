@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-15 23:28:58.771563
+2026-07-16 00:06:00.259526
 
 ``` r
 knitr::opts_chunk$set(echo = TRUE, dev = "ragg_png")
@@ -35,6 +35,7 @@ timestamp_reference_lines <- tibble::tribble(
   lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "usb fan installed vertically"     ,
   lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "usb fan reinstalled horizontally" ,
   lubridate::as_datetime("2026-07-16 02:40:00 UTC") , "add one 4L bottle of water"       ,
+  lubridate::as_datetime("2026-07-16 03:40:00 UTC") , "duct-taped cable gaps"            ,
 )
 ```
 
@@ -188,14 +189,11 @@ plot_rolling_metric <- function(
   if (!is.null(timestamp_reference_lines)) {
     suppressWarnings({
       plot <- plot +
-        geom_labelvline(
+        geom_textvline(
           xintercept = timestamp_reference_lines$timestamp,
           label = timestamp_reference_lines$label,
           color = "white",
-          fill = "white",
-          textcolor = "black",
-          alpha = 0.75,
-          # linewidth = 3,
+          alpha = 1,
           hjust = 0.5,
           linetype = 2,
           data = timestamp_reference_lines
