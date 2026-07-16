@@ -79,3 +79,8 @@ not yet used:
     systemctl status dry-age-monitor.service
     journalctl -u dry-age-monitor.service -f
     ```
+
+## todo
+
+- add more thermal mass to fridge to reduce temperature swings
+- automate report generation via cron on the Pi (?)
