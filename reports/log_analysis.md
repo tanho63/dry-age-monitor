@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-15 23:15:42.769352
+2026-07-15 23:28:58.771563
 
 ``` r
 knitr::opts_chunk$set(echo = TRUE, dev = "ragg_png")
@@ -28,13 +28,13 @@ Parameters
 
 ``` r
 roll_minutes <- 30
-log_frequency <- 30 # number of seconds between logs
 timestamp_reference_lines <- tibble::tribble(
   ~timestamp                                        , ~label                             ,
+  lubridate::as_datetime("2026-07-13 11:00:00 UTC") , "ribeye added to fridge"           ,
   lubridate::as_datetime("2026-07-14 22:00:00 UTC") , "initial monitor setup"            ,
-  lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "USB fan installed vertically"     ,
-  lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "USB fan reinstalled horizontally" ,
-  lubridate::as_datetime("2026-07-16 02:40:00 UTC") , "Added one 4L bottle of water"
+  lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "usb fan installed vertically"     ,
+  lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "usb fan reinstalled horizontally" ,
+  lubridate::as_datetime("2026-07-16 02:40:00 UTC") , "add one 4L bottle of water"       ,
 )
 ```
 
@@ -148,9 +148,11 @@ plot_rolling_metric <- function(
     ggplot(aes(x = timestamp)) +
     geom_line(aes(y = value, color = metric_type), size = 1) +
     tantastic::theme_tantastic(
-      base_size = 12,
-      plot_title_size = 16,
-      caption_size = 10
+      base_size = 16,
+      plot_title_size = 20,
+      axis_title_size = 16,
+      axis_text_size = 14,
+      caption_size = 12
     ) +
     scale_y_continuous(
       limits = metric_limits,
@@ -193,7 +195,7 @@ plot_rolling_metric <- function(
           fill = "white",
           textcolor = "black",
           alpha = 0.75,
-          size = 3,
+          # linewidth = 3,
           hjust = 0.5,
           linetype = 2,
           data = timestamp_reference_lines
