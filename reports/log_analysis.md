@@ -31,10 +31,10 @@ Parameters
 roll_minutes <- 30
 log_frequency <- 30 # number of seconds between logs
 timestamp_reference_lines <- tibble::tribble(
-  ~timestamp                                        , ~label                  ,
-  lubridate::as_datetime("2026-07-14 22:00:00 UTC") , "initial monitor setup" ,
-  lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "USB fan install"       ,
-  lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "USB fan reorienting"   ,
+  ~timestamp                                        , ~label                             ,
+  lubridate::as_datetime("2026-07-14 22:00:00 UTC") , "initial monitor setup"            ,
+  lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "USB fan installed vertically"     ,
+  lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "USB fan reinstalled horizontally" ,
 )
 ```
 
@@ -214,6 +214,11 @@ plot_rolling_metric(
   timestamp_reference_lines = timestamp_reference_lines
 )
 ```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+    ## This warning is displayed once per session.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
 
 ![](log_analysis_files/figure-gfm/plot-1.png)<!-- -->
 
