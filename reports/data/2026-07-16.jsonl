@@ -38,3 +38,17 @@
 {"timestamp": "2026-07-16T00:18:43", "temperature_c": 5.81, "humidity_pct": 90.04, "pressure_hpa": 1010.34, "gas_ohms": 13800}
 {"timestamp": "2026-07-16T00:19:13", "temperature_c": 5.64, "humidity_pct": 80.23, "pressure_hpa": 1010.31, "gas_ohms": 14200}
 {"timestamp": "2026-07-16T00:19:43", "temperature_c": 5.39, "humidity_pct": 73.0, "pressure_hpa": 1010.3, "gas_ohms": 14600}
+{"timestamp": "2026-07-16T00:20:13", "temperature_c": 5.06, "humidity_pct": 68.72, "pressure_hpa": 1010.28, "gas_ohms": 15000}
+{"timestamp": "2026-07-16T00:20:43", "temperature_c": 4.7, "humidity_pct": 65.72, "pressure_hpa": 1010.26, "gas_ohms": 15500}
+{"timestamp": "2026-07-16T00:21:13", "temperature_c": 4.33, "humidity_pct": 64.02, "pressure_hpa": 1010.26, "gas_ohms": 15900}
+{"timestamp": "2026-07-16T00:21:43", "temperature_c": 3.94, "humidity_pct": 62.54, "pressure_hpa": 1010.24, "gas_ohms": 16300}
+{"timestamp": "2026-07-16T00:22:13", "temperature_c": 3.55, "humidity_pct": 60.99, "pressure_hpa": 1010.22, "gas_ohms": 16600}
+{"timestamp": "2026-07-16T00:22:43", "temperature_c": 3.18, "humidity_pct": 59.99, "pressure_hpa": 1010.2, "gas_ohms": 17000}
+{"timestamp": "2026-07-16T00:23:13", "temperature_c": 2.82, "humidity_pct": 58.83, "pressure_hpa": 1010.2, "gas_ohms": 17300}
+{"timestamp": "2026-07-16T00:23:43", "temperature_c": 2.48, "humidity_pct": 58.22, "pressure_hpa": 1010.18, "gas_ohms": 17500}
+{"timestamp": "2026-07-16T00:24:13", "temperature_c": 2.13, "humidity_pct": 57.45, "pressure_hpa": 1010.17, "gas_ohms": 17900}
+{"timestamp": "2026-07-16T00:24:43", "temperature_c": 1.8, "humidity_pct": 56.64, "pressure_hpa": 1010.17, "gas_ohms": 17900}
+{"timestamp": "2026-07-16T00:25:13", "temperature_c": 1.47, "humidity_pct": 56.38, "pressure_hpa": 1010.16, "gas_ohms": 18100}
+{"timestamp": "2026-07-16T00:25:43", "temperature_c": 1.16, "humidity_pct": 56.02, "pressure_hpa": 1010.16, "gas_ohms": 18300}
+{"timestamp": "2026-07-16T00:26:13", "temperature_c": 0.84, "humidity_pct": 55.55, "pressure_hpa": 1010.15, "gas_ohms": 18600}
+{"timestamp": "2026-07-16T00:26:43", "temperature_c": 0.54, "humidity_pct": 55.63, "pressure_hpa": 1010.16, "gas_ohms": 18800}

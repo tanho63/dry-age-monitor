@@ -192,6 +192,7 @@ plot_rolling_metric <- function(
           color = "black",
           alpha = 0.8,
           hjust = 1,
+      linecolor = "white",
           data = timestamp_reference_lines
         )
     })
