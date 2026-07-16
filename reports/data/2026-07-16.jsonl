@@ -1,0 +1,6 @@
+{"timestamp": "2026-07-16T00:00:13", "temperature_c": 0.83, "humidity_pct": 95.98, "pressure_hpa": 1010.19, "gas_ohms": 15000}
+{"timestamp": "2026-07-16T00:00:43", "temperature_c": 1.04, "humidity_pct": 95.86, "pressure_hpa": 1010.2, "gas_ohms": 14900}
+{"timestamp": "2026-07-16T00:01:13", "temperature_c": 1.24, "humidity_pct": 95.67, "pressure_hpa": 1010.22, "gas_ohms": 14800}
+{"timestamp": "2026-07-16T00:01:43", "temperature_c": 1.43, "humidity_pct": 95.57, "pressure_hpa": 1010.24, "gas_ohms": 14800}
+{"timestamp": "2026-07-16T00:02:13", "temperature_c": 1.61, "humidity_pct": 95.58, "pressure_hpa": 1010.25, "gas_ohms": 14900}
+{"timestamp": "2026-07-16T00:02:43", "temperature_c": 1.77, "humidity_pct": 95.77, "pressure_hpa": 1010.27, "gas_ohms": 14900}

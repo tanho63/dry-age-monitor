@@ -37,6 +37,12 @@ Parameters
 ```{r parameters}
 roll_minutes <- 30
 log_frequency <- 30 # number of seconds between logs
+timestamp_reference_lines <- tibble::tribble(
+  ~timestamp                                        , ~label                             ,
+  lubridate::as_datetime("2026-07-14 22:00:00 UTC") , "initial monitor setup"            ,
+  lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "USB fan installed vertically"     ,
+  lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "USB fan reinstalled horizontally" ,
+)
 ```
 
 ```{r utils}
@@ -184,10 +190,11 @@ plot_rolling_metric <- function(
   if (!is.null(timestamp_reference_lines)) {
     suppressWarnings({
       plot <- plot +
-        geom_textvline(
-          xintercept = timestamp_reference_lines$x,
+        geom_labelvline(
+          xintercept = timestamp_reference_lines$timestamp,
           label = timestamp_reference_lines$label,
-          color = "white",
+          color = "black",
+          alpha = 0.8,
           hjust = 1,
           data = timestamp_reference_lines
         )
@@ -208,11 +215,7 @@ plot_rolling_metric(
     y = c(32, 34, 38, 40),
     label = c("freezing", "lower", "upper", "danger")
   ),
-  timestamp_reference_lines = tibble::tribble(
-    ~x                                                , ~label                  ,
-    lubridate::as_datetime("2026-07-14 22:00:00 UTC") , "initial monitor setup" ,
-    lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "USB fan install"       ,
-  )
+  timestamp_reference_lines = timestamp_reference_lines
 )
 
 plot_rolling_metric(
@@ -222,16 +225,12 @@ plot_rolling_metric(
   plot_title = "Relative Humidity",
   plot_subtitle = "Percentage of theoretical maximum water vapor that can be held in the air at this temperature",
   metric_units = "Percent",
-  timestamp_reference_lines = tibble::tribble(
-    ~x                                                , ~label                  ,
-    lubridate::as_datetime("2026-07-14 22:00:00")     , "initial monitor setup" ,
-    lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "USB fan install"       ,
-  ),
+  timestamp_reference_lines = timestamp_reference_lines,
   metric_limits = NULL,
   metric_reference_lines = data.frame(
     y = c(80, 85, 100),
     label = c("lower", "upper", "saturation")
-  )
+  ),
 )
 
 plot_rolling_metric(
@@ -241,11 +240,7 @@ plot_rolling_metric(
   plot_title = "Temp Minus Dewpoint",
   plot_subtitle = "Reaching zero indicates saturation/condensation",
   metric_units = "degrees F",
-  timestamp_reference_lines = tibble::tribble(
-    ~x                                                , ~label                  ,
-    lubridate::as_datetime("2026-07-14 22:00:00")     , "initial monitor setup" ,
-    lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "USB fan install"       ,
-  ),
+  timestamp_reference_lines = timestamp_reference_lines,
   metric_limits = NULL,
   metric_reference_lines = data.frame(
     y = 0,
@@ -260,6 +255,7 @@ plot_rolling_metric(
   plot_title = "Air Pressure",
   metric_units = "hPa",
   timestamp_limits = NULL,
+  timestamp_reference_lines = timestamp_reference_lines,
   metric_breaks_width = 100,
   metric_limits = NULL,
   metric_reference_lines = NULL
@@ -273,6 +269,7 @@ plot_rolling_metric(
   plot_subtitle = "Higher values indicate cleaner air = less offgassing",
   metric_units = "hPa",
   timestamp_limits = NULL,
+  timestamp_reference_lines = timestamp_reference_lines,
   metric_limits = NULL,
   metric_breaks_width = 1000,
   metric_reference_lines = NULL
