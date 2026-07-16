@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-16 07:48:20.938119
+2026-07-16 07:52:21.492818
 
 ``` r
 knitr::opts_chunk$set(echo = TRUE, dev = "ragg_png")
@@ -27,7 +27,7 @@ here::i_am("reports/log_analysis.Rmd")
 Parameters
 
 ``` r
-roll_minutes <- 30
+roll_minutes <- 60
 timestamp_reference_lines <- tibble::tribble(
   ~timestamp                                        , ~label                             ,
   lubridate::as_datetime("2026-07-13 11:00:00 UTC") , "ribeye added to fridge"           ,

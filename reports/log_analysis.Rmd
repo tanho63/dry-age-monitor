@@ -34,7 +34,7 @@ here::i_am("reports/log_analysis.Rmd")
 
 Parameters
 ```{r parameters}
-roll_minutes <- 30
+roll_minutes <- 60
 timestamp_reference_lines <- tibble::tribble(
   ~timestamp                                        , ~label                             ,
   lubridate::as_datetime("2026-07-13 11:00:00 UTC") , "ribeye added to fridge"           ,
