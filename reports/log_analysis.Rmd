@@ -44,13 +44,13 @@ events <- tibble::tribble(
   lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "usb fan reinstalled horizontally"      ,
   lubridate::as_datetime("2026-07-16 02:40:00 UTC") , "add water jug, duct-tape cable-gaps"   ,
   lubridate::as_datetime("2026-07-16 19:20:00 UTC") , "more jugs, replace fan, use foam tape" ,
-  lubridate::as_datetime("2026-07-17 01:15:00 UTC"), "reorient fan horizontally",
-  lubridate::as_datetime("2026-07-17 04:30:00 UTC"), "slow down fan",
-  lubridate::as_datetime("2026-07-17 16:01:00 UTC"), "apply +0.5C calibration"
+  lubridate::as_datetime("2026-07-17 01:15:00 UTC") , "reorient fan horizontally"             ,
+  lubridate::as_datetime("2026-07-17 04:30:00 UTC") , "slow down fan"                         ,
+  lubridate::as_datetime("2026-07-17 16:01:00 UTC") , "apply +0.5C calibration"
 )
 ```
 ## event timeline
-```{r}
+```{r event_timeline}
 knitr::kable(events)
 ```
 ```{r utils}
@@ -71,7 +71,7 @@ system("scp tan@relicanth:/home/tan/dry_age_monitor/logs/* data")
 ```
 
 ```{r parse}
-readings <- list.files(path = "data", full.names = TRUE) |>
+readings <- list.files(path = here::here("reports/data"), full.names = TRUE) |>
   purrr::map(readLines) |>
   unlist() |>
   purrr::map(jsonlite::parse_json) |>
@@ -100,14 +100,78 @@ readings <- list.files(path = "data", full.names = TRUE) |>
       temp_minus_dewpoint <= 0 ~ "saturation"
     )
   ) |>
-    dplyr::filter(timestamp >= start_date & timestamp <= end_date)
+  dplyr::filter(timestamp >= start_date & timestamp <= end_date)
+
+rolling_metrics <- readings |>
+  dplyr::select(
+    timestamp,
+    temperature_f,
+    humidity_pct,
+    temp_minus_dewpoint,
+    gas_ohms,
+    pressure_hpa
+  ) |>
+  tidyr::pivot_longer(
+    -timestamp,
+    names_to = "metric",
+    values_to = "raw_value"
+  ) |>
+  dplyr::mutate(
+    rollmean = slider::slide_index_dbl(
+      .x = raw_value,
+      .i = timestamp,
+      .f = mean,
+      .before = lubridate::minutes(roll_minutes)
+    ),
+    roll95 = slider::slide_index_dbl(
+      .x = raw_value,
+      .i = timestamp,
+      .f = \(x) quantile(x, 0.95),
+      .before = lubridate::minutes(roll_minutes)
+    ),
+    roll05 = slider::slide_index_dbl(
+      .x = raw_value,
+      .i = timestamp,
+      .f = \(x) quantile(x, 0.05),
+      .before = lubridate::minutes(roll_minutes)
+    ),
+    roll80 = slider::slide_index_dbl(
+      .x = raw_value,
+      .i = timestamp,
+      .f = \(x) quantile(x, 0.80),
+      .before = lubridate::minutes(roll_minutes)
+    ),
+    roll20 = slider::slide_index_dbl(
+      .x = raw_value,
+      .i = timestamp,
+      .f = \(x) quantile(x, 0.20),
+      .before = lubridate::minutes(roll_minutes)
+    ),
+    .by = metric
+  ) |>
+  tidyr::pivot_longer(
+    cols = c("raw_value", starts_with("roll")),
+    names_to = "metric_type",
+    values_to = "value"
+  ) |>
+  dplyr::mutate(
+    metric_type = forcats::fct_relevel(
+      metric_type,
+      "raw_value",
+      "roll05",
+      "roll20",
+      "rollmean",
+      "roll80",
+      "roll95"
+    )
+  )
 ```
 
 ## Rolling Average Plots
 ```{r plot}
 plot_rolling_metric <- function(
   metric_name,
-  readings,
+  rolling_metrics,
   roll_minutes,
   plot_title = NULL,
   plot_subtitle = NULL,
@@ -118,67 +182,8 @@ plot_rolling_metric <- function(
   metric_limits = NULL,
   metric_reference_lines = NULL
 ) {
-  plot_pivot <- readings |>
-    dplyr::select(
-      timestamp,
-      dplyr::all_of(metric_name)
-    ) |>
-    tidyr::pivot_longer(
-      -timestamp,
-      names_to = "metric",
-      values_to = "raw_value"
-    ) |>
-    dplyr::mutate(
-      rollmean = slider::slide_index_dbl(
-        .x = raw_value,
-        .i = timestamp,
-        .f = mean,
-        .before = lubridate::minutes(roll_minutes)
-      ),
-      roll95 = slider::slide_index_dbl(
-        .x = raw_value,
-        .i = timestamp,
-        .f = \(x) quantile(x, 0.95),
-        .before = lubridate::minutes(roll_minutes)
-      ),
-      roll05 = slider::slide_index_dbl(
-        .x = raw_value,
-        .i = timestamp,
-        .f = \(x) quantile(x, 0.05),
-        .before = lubridate::minutes(roll_minutes)
-      ),
-      roll80 = slider::slide_index_dbl(
-        .x = raw_value,
-        .i = timestamp,
-        .f = \(x) quantile(x, 0.80),
-        .before = lubridate::minutes(roll_minutes)
-      ),
-      roll20 = slider::slide_index_dbl(
-        .x = raw_value,
-        .i = timestamp,
-        .f = \(x) quantile(x, 0.20),
-        .before = lubridate::minutes(roll_minutes)
-      ),
-      .by = metric
-    ) |>
-    tidyr::pivot_longer(
-      cols = c("raw_value", starts_with("roll")),
-      names_to = "metric_type",
-      values_to = "value"
-    ) |>
-    dplyr::mutate(
-      metric_type = forcats::fct_relevel(
-        metric_type,
-        "roll05",
-        "roll20",
-        "rollmean",
-        "roll80",
-        "roll95"
-      )
-    )
-
-  plot <- plot_pivot |>
-    dplyr::filter(metric_type != "raw_value") |>
+  plot <- rolling_metrics |>
+    dplyr::filter(metric_name == metric, metric_type != "raw_value") |>
     ggplot(aes(x = timestamp)) +
     geom_line(aes(y = value, color = metric_type), size = 1) +
     tantastic::theme_tantastic(
@@ -245,7 +250,7 @@ plot_rolling_metric <- function(
 
 plot_rolling_metric(
   metric_name = "temperature_f",
-  readings = readings,
+  rolling_metrics = rolling_metrics,
   roll_minutes = roll_minutes,
   plot_title = "Temperature",
   metric_units = "degrees F",
@@ -259,7 +264,7 @@ plot_rolling_metric(
 
 plot_rolling_metric(
   metric_name = "humidity_pct",
-  readings = readings,
+  rolling_metrics = rolling_metrics,
   roll_minutes = roll_minutes,
   plot_title = "Relative Humidity",
   plot_subtitle = "Percentage of theoretical maximum water vapor that can be held in the air at this temperature",
@@ -274,7 +279,7 @@ plot_rolling_metric(
 
 plot_rolling_metric(
   metric_name = "temp_minus_dewpoint",
-  readings = readings,
+  rolling_metrics = rolling_metrics,
   roll_minutes = roll_minutes,
   plot_title = "Temp Minus Dewpoint",
   plot_subtitle = "Reaching zero indicates saturation/condensation",
@@ -286,7 +291,7 @@ plot_rolling_metric(
 
 plot_rolling_metric(
   metric_name = "gas_ohms",
-  readings = readings,
+  rolling_metrics = rolling_metrics,
   roll_minutes = roll_minutes,
   plot_title = "Gas Resistance",
   plot_subtitle = "Higher values indicate cleaner air = less offgassing",
@@ -300,7 +305,7 @@ plot_rolling_metric(
 
 plot_rolling_metric(
   metric_name = "pressure_hpa",
-  readings = readings,
+  rolling_metrics = rolling_metrics,
   roll_minutes = roll_minutes,
   plot_title = "Air Pressure",
   metric_units = "hPa",
@@ -310,4 +315,46 @@ plot_rolling_metric(
   metric_limits = NULL,
   metric_reference_lines = NULL
 )
+```
+
+## Rolling Average Tables
+```{r table}
+table_rolling_metrics <- function(
+  metric_name,
+  rolling_metrics = rolling_metrics,
+  n_digits = 2
+) {
+  rolling_metrics |>
+    dplyr::filter(metric == metric_name, metric_type != "raw_value") |>
+    dplyr::mutate(
+      metric_type = forcats::fct_relevel(
+        metric_type,
+        "roll05",
+        "roll20",
+        "rollmean",
+        "roll80",
+        "roll95"
+      ),
+      value = round(value, n_digits)
+    ) |>
+    dplyr::arrange(metric_type) |>
+    tidyr::pivot_wider(
+      names_from = metric_type,
+      values_from = value
+    ) |>
+    dplyr::mutate(
+      timestamp = lubridate::floor_date(
+        timestamp,
+        unit = lubridate::minutes(roll_minutes)
+      )
+    ) |>
+    dplyr::slice_tail(n = 1, by = timestamp) |>
+    knitr::kable()
+}
+
+table_rolling_metrics("temperature_f", rolling_metrics, 1)
+table_rolling_metrics("humidity_pct", rolling_metrics, 1)
+table_rolling_metrics("temp_minus_dewpoint", rolling_metrics, 1)
+table_rolling_metrics("gas_ohms", rolling_metrics, 0)
+table_rolling_metrics("pressure_hpa", rolling_metrics, 0)
 ```
