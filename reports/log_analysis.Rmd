@@ -32,7 +32,6 @@ suppressPackageStartupMessages({
 })
 here::i_am("reports/log_analysis.Rmd")
 ```
-
 ```{r parameters, echo = FALSE}
 roll_minutes <- 30
 start_date <- lubridate::as_datetime("2026-07-13 12:00:00 UTC")
@@ -50,7 +49,6 @@ events <- tibble::tribble(
 )
 knitr::kable(events)
 ```
-
 ```{r utils}
 .dew_point <- function(temp_c, rh_pct) {
   stopifnot(length(temp_c) == length(rh_pct))
@@ -101,7 +99,8 @@ readings <- list.files(path = "data", full.names = TRUE) |>
     dplyr::filter(timestamp >= start_date & timestamp <= end_date)
 
 ```
-Rolling Average Plots
+
+## Rolling Average Plots
 ```{r plot}
 plot_rolling_metric <- function(
   metric_name,
