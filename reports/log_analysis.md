@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-17 11:01:34.845096
+2026-07-17 12:15:08.29099
 
 ``` r
 knitr::opts_chunk$set(echo = FALSE, dev = "ragg_png")
@@ -35,6 +35,8 @@ here::i_am("reports/log_analysis.Rmd")
 | 2026-07-16 19:20:00 | more jugs, replace fan, use foam tape |
 | 2026-07-17 01:15:00 | reorient fan horizontally             |
 | 2026-07-17 04:30:00 | slow down fan                         |
+| 2026-07-17 16:01:00 | apply +0.5C calibration               |
 
-Rolling Average Plots
+## Rolling Average Plots
+
 ![](log_analysis_files/figure-gfm/plot-1.png)<!-- -->![](log_analysis_files/figure-gfm/plot-2.png)<!-- -->![](log_analysis_files/figure-gfm/plot-3.png)<!-- -->![](log_analysis_files/figure-gfm/plot-4.png)<!-- -->![](log_analysis_files/figure-gfm/plot-5.png)<!-- -->

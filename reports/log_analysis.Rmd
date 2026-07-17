@@ -46,6 +46,7 @@ events <- tibble::tribble(
   lubridate::as_datetime("2026-07-16 19:20:00 UTC") , "more jugs, replace fan, use foam tape" ,
   lubridate::as_datetime("2026-07-17 01:15:00 UTC"), "reorient fan horizontally",
   lubridate::as_datetime("2026-07-17 04:30:00 UTC"), "slow down fan",
+  lubridate::as_datetime("2026-07-17 16:01:00 UTC"), "apply +0.5C calibration"
 )
 knitr::kable(events)
 ```
@@ -101,6 +102,7 @@ readings <- list.files(path = "data", full.names = TRUE) |>
 ```
 
 ## Rolling Average Plots
+
 ```{r plot}
 plot_rolling_metric <- function(
   metric_name,
