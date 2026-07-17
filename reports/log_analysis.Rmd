@@ -33,12 +33,11 @@ suppressPackageStartupMessages({
 here::i_am("reports/log_analysis.Rmd")
 ```
 
-Parameters
-```{r parameters, echo = TRUE}
+```{r parameters, echo = FALSE}
 roll_minutes <- 30
 start_date <- lubridate::as_datetime("2026-07-13 12:00:00 UTC")
 end_date <- Sys.time()
-timestamp_reference_lines <- tibble::tribble(
+events <- tibble::tribble(
   ~timestamp                                        , ~label                                  ,
   lubridate::as_datetime("2026-07-13 11:00:00 UTC") , "ribeye added to fridge"                ,
   lubridate::as_datetime("2026-07-14 22:00:00 UTC") , "initial monitor setup"                 ,
@@ -46,7 +45,10 @@ timestamp_reference_lines <- tibble::tribble(
   lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "usb fan reinstalled horizontally"      ,
   lubridate::as_datetime("2026-07-16 02:40:00 UTC") , "add water jug, duct-tape cable-gaps"   ,
   lubridate::as_datetime("2026-07-16 19:20:00 UTC") , "more jugs, replace fan, use foam tape" ,
+  lubridate::as_datetime("2026-07-17 01:15:00 UTC"), "reorient fan horizontally",
+  lubridate::as_datetime("2026-07-17 04:30:00 UTC"), "slow down fan",
 )
+knitr::kable(events)
 ```
 
 ```{r utils}
@@ -62,7 +64,6 @@ timestamp_reference_lines <- tibble::tribble(
 c_to_f <- function(temp_c) (temp_c * 9/5) + 32
 f_to_c <- function(temp_f) (temp_f - 32) * 5/9
 ```
-Pull data via system scp call into the data folder at top level
 ```{r data_pull}
 system("scp tan@relicanth:/home/tan/dry_age_monitor/logs/* data")
 ```
@@ -251,7 +252,7 @@ plot_rolling_metric(
     y = c(32, 34, 38, 40),
     label = c("freezing", "lower", "upper", "danger")
   ),
-  timestamp_reference_lines = timestamp_reference_lines
+  timestamp_reference_lines = events
 )
 
 plot_rolling_metric(
@@ -261,7 +262,7 @@ plot_rolling_metric(
   plot_title = "Relative Humidity",
   plot_subtitle = "Percentage of theoretical maximum water vapor that can be held in the air at this temperature",
   metric_units = "Percent",
-  timestamp_reference_lines = timestamp_reference_lines,
+  timestamp_reference_lines = events,
   metric_limits = NULL,
   metric_reference_lines = data.frame(
     y = c(75, 85, 100),
@@ -276,7 +277,7 @@ plot_rolling_metric(
   plot_title = "Temp Minus Dewpoint",
   plot_subtitle = "Reaching zero indicates saturation/condensation",
   metric_units = "degrees F",
-  timestamp_reference_lines = timestamp_reference_lines,
+  timestamp_reference_lines = events,
   metric_limits = NULL,
   metric_reference_lines = data.frame(y = 0, label = "saturation")
 )
@@ -287,9 +288,9 @@ plot_rolling_metric(
   roll_minutes = roll_minutes,
   plot_title = "Gas Resistance",
   plot_subtitle = "Higher values indicate cleaner air = less offgassing",
-  metric_units = "hPa",
+  metric_units = "Ohms",
   timestamp_limits = NULL,
-  timestamp_reference_lines = timestamp_reference_lines,
+  timestamp_reference_lines = events,
   metric_limits = NULL,
   metric_breaks_width = 1000,
   metric_reference_lines = NULL
@@ -302,7 +303,7 @@ plot_rolling_metric(
   plot_title = "Air Pressure",
   metric_units = "hPa",
   timestamp_limits = NULL,
-  timestamp_reference_lines = timestamp_reference_lines,
+  timestamp_reference_lines = events,
   metric_breaks_width = 100,
   metric_limits = NULL,
   metric_reference_lines = NULL
