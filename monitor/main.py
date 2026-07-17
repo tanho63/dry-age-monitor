@@ -36,6 +36,7 @@ def connect_sensor():
 
 def configure_sensor(sensor):
     """Configure oversampling / filter settings, and enable the gas heater."""
+    sensor.set_temp_offset(TEMP_OFFSET_C)
     sensor.set_humidity_oversample(bme690.OS_2X)
     sensor.set_pressure_oversample(bme690.OS_4X)
     sensor.set_temperature_oversample(bme690.OS_8X)
@@ -62,7 +63,7 @@ def read_row(sensor):
     gas = round(d.gas_resistance) if getattr(d, "heat_stable", False) else None
     return {
         "timestamp": ts,
-        "temperature_c": round(d.temperature + TEMP_OFFSET_C, 2),
+        "temperature_c": round(d.temperature, 2),
         "humidity_pct": round(d.humidity, 2),
         "pressure_hpa": round(d.pressure, 2),
         "gas_ohms": gas,
