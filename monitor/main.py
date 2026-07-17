@@ -18,7 +18,7 @@ import bme690
 LOG_DIR = os.path.expanduser("~/dry_age_monitor/logs")
 INTERVAL_SECONDS = 30
 WARMUP_SECONDS = 10           # let the sensor settle before recording
-TEMP_OFFSET_C = 0.52           # calibrated vs Combustion probe
+TEMP_OFFSET_C = 0.52          # calibrated vs Combustion probe
 
 
 def connect_sensor():

@@ -48,6 +48,9 @@ events <- tibble::tribble(
   lubridate::as_datetime("2026-07-17 04:30:00 UTC"), "slow down fan",
   lubridate::as_datetime("2026-07-17 16:01:00 UTC"), "apply +0.5C calibration"
 )
+```
+## event timeline
+```{r}
 knitr::kable(events)
 ```
 ```{r utils}
@@ -98,11 +101,9 @@ readings <- list.files(path = "data", full.names = TRUE) |>
     )
   ) |>
     dplyr::filter(timestamp >= start_date & timestamp <= end_date)
-
 ```
 
 ## Rolling Average Plots
-
 ```{r plot}
 plot_rolling_metric <- function(
   metric_name,
