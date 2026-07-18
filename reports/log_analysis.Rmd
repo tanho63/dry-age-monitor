@@ -46,7 +46,10 @@ events <- tibble::tribble(
   lubridate::as_datetime("2026-07-16 19:20:00 UTC") , "more jugs, replace fan, use foam tape" ,
   lubridate::as_datetime("2026-07-17 01:15:00 UTC") , "reorient fan horizontally"             ,
   lubridate::as_datetime("2026-07-17 04:30:00 UTC") , "slow down fan"                         ,
-  lubridate::as_datetime("2026-07-17 16:01:00 UTC") , "apply +0.5C calibration"
+  lubridate::as_datetime("2026-07-17 16:01:00 UTC") , "apply +0.5C calibration"               ,
+  lubridate::as_datetime("2026-07-18 04:30:00 UTC") , "adjust fan orientation"                ,
+  lubridate::as_datetime("2026-07-18 14:30:00 UTC") , "add salt tray"                         ,
+  lubridate::as_datetime("2026-07-18 16:15:00 UTC") , "relocate to lower rack"                ,
 )
 ```
 ## event timeline
@@ -72,11 +75,9 @@ system("scp tan@relicanth:/home/tan/dry_age_monitor/logs/* data")
 
 ```{r parse}
 readings <- list.files(path = here::here("reports/data"), full.names = TRUE) |>
-  purrr::map(readLines) |>
-  unlist() |>
-  purrr::map(jsonlite::parse_json) |>
+  lapply(yyjsonr::read_ndjson_file) |>
   tibble::tibble() |>
-  tidyr::unnest_wider(1) |>
+  tidyr::unnest(1) |>
   dplyr::mutate(
     timestamp = lubridate::as_datetime(timestamp),
     temperature_f = c_to_f(temperature_c),
@@ -120,35 +121,21 @@ rolling_metrics <- readings |>
     rollmean = slider::slide_index_dbl(
       .x = raw_value,
       .i = timestamp,
-      .f = mean,
+      .f = \(x) mean(x, na.rm = TRUE),
       .before = lubridate::minutes(roll_minutes)
     ),
-    roll95 = slider::slide_index_dbl(
+    roll = slider::slide_index(
       .x = raw_value,
       .i = timestamp,
-      .f = \(x) quantile(x, 0.95),
-      .before = lubridate::minutes(roll_minutes)
-    ),
-    roll05 = slider::slide_index_dbl(
-      .x = raw_value,
-      .i = timestamp,
-      .f = \(x) quantile(x, 0.05),
-      .before = lubridate::minutes(roll_minutes)
-    ),
-    roll80 = slider::slide_index_dbl(
-      .x = raw_value,
-      .i = timestamp,
-      .f = \(x) quantile(x, 0.80),
-      .before = lubridate::minutes(roll_minutes)
-    ),
-    roll20 = slider::slide_index_dbl(
-      .x = raw_value,
-      .i = timestamp,
-      .f = \(x) quantile(x, 0.20),
+      .f = \(x) {
+        quantile(x, c(0.05, 0.2, 0.8, 0.95), na.rm = TRUE) |>
+          setNames(nm = c("roll05", "roll20", "roll80", "roll95"))
+      },
       .before = lubridate::minutes(roll_minutes)
     ),
     .by = metric
   ) |>
+  tidyr::unnest_wider(roll) |>
   tidyr::pivot_longer(
     cols = c("raw_value", starts_with("roll")),
     names_to = "metric_type",
