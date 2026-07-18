@@ -1,0 +1,35 @@
+Package: dryagemonitor
+Title: dryagemonitor
+Version: 0.1.0
+Authors@R: c(
+    person("Tan", "Ho", , "tan@tanho.ca", role = c("aut", "cre", "cph"))
+  )
+Description: Builds dry age monitoring report
+License: MIT + file LICENSE
+Depends:
+    R (>= 4.5.0)
+Imports:
+    yyjsonr,
+    dplyr,
+    tidyr,
+    purrr,
+    forcats,
+    slider,
+    lubridate,
+    glue,
+    ggplot2,
+    geomtextpath,
+    scales,
+    ragg,
+    marquee,
+    extrafont,
+    tantastic,
+    rmarkdown,
+    knitr,
+    here
+Remotes:
+    tanho63/tantastic
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3

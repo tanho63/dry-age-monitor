@@ -70,11 +70,11 @@ c_to_f <- function(temp_c) (temp_c * 9/5) + 32
 f_to_c <- function(temp_f) (temp_f - 32) * 5/9
 ```
 ```{r data_pull}
-system("scp tan@relicanth:/home/tan/dry_age_monitor/logs/* data")
+system("scp tan@relicanth:/home/tan/dry-age-monitor/logs/* /home/tan/dry-age-monitor/logs")
 ```
 
 ```{r parse}
-readings <- list.files(path = here::here("reports/data"), full.names = TRUE) |>
+readings <- list.files(path = here::here("logs"), full.names = TRUE) |>
   lapply(yyjsonr::read_ndjson_file) |>
   tibble::tibble() |>
   tidyr::unnest(1) |>
