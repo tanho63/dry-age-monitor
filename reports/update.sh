@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# cron automated report. this is configured to run on my other home server rather
+# than on the pi: it takes too long to run rmarkdown render with only 500mb memory
+
 IMAGE=damr:latest
 DIR="/home/tan/dry-age-monitor"
 set -euxo pipefail
