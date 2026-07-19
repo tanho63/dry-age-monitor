@@ -13,10 +13,10 @@ A project monitoring a home dry aging fridge setup.
 - [USB fan](https://www.amazon.ca/dp/B06Y5WWBHH?th=1)
 - velcro cable ties (for securing the BME690 sensor to the fridge rack)
 - [dedicated fridge](https://www.costco.ca/frigidaire-21-in.-6.0-cu-ft.-commercial-glass-display-refrigerator.product.4000409375.html), ideally with wire racks
-
-not yet used:
-- [Adafruit EMC2101 fan controller](https://www.adafruit.com/product/4808) - potentially for adding a fan control system (?)
 - [12V computer case fan](https://www.canadacomputers.com/en/case-fans/249387/be-quiet-pure-wings-3-120mm-case-fan-bl104.html) fan
+- [12V PWM Fan Controller](https://www.amazon.ca/dp/B0DPZM7T3Q) cheap usb-c case fan controller
+- [TempPro TP50](https://temppro.com/products/tp50-digital-indoor-hygrometer-thermometer) indoor thermohygrometer (as a backup system)
+- [Foam tape](https://www.amazon.ca/dp/B00448HIT0) for insulating cable gaps in the door gasket
 
 ## setup notes
 
@@ -27,9 +27,9 @@ not yet used:
 - Put SD card in Raspberry Pi and plug in power, which automatically starts the Pi.
 - SSH into the Pi, ideally by finding the IP address of the Pi on your router software and then using default creds.
 - Do first time setup, including:
-    - name the device ("relicanth" is an ancient long-lived Hoenn pokemon)
+    - name the device ("relicanth" is an especially ancient long-lived Hoenn pokemon)
     - configure Tailscale for home networking
-    - set up a new user and password etc
+    - set up a new user and password
 
 ### hardware setup
 
@@ -40,7 +40,7 @@ not yet used:
         - Blue (SDA) -> pin 3
         - Yellow (SCL) -> pin 5
     - Qt end of cable plugs into the Stemma/QT hub. In theory, could plug directly into BME690 sensor, but the hub is useful for two reasons:
-        - enables using a much longer Qt-to-QT cable (400mm) which helps put the sensor much deeper inside the fridge
+        - enables using a much longer Qt-to-QT cable (400mm) which helps put the sensor deeper inside the fridge
         - enables setting up fan controls via I2C later, which should be helpful down the road
 
 - Use long QT-to-QT cable (400mm) to connect from hub to BME690 sensor
@@ -80,7 +80,52 @@ not yet used:
     journalctl -u dry-age-monitor.service -f
     ```
 
+### report
+
+Report has been tweaked a lot but obviously for me was easier to write in R. It's
+automated as a dockerized cronjob that isn't run on the Pi because the Pi doesn't
+have enough memory/cpu to do it efficiently.
+
+## monitoring and adjusting based on the data
+
+- My goal is to keep the mean temperature between 34 and 38F, and to keep the
+relative humidity between 75 and 85%. Thus far, I've found that the fridge swings
+pretty wildly temperature-wise: it drops below freezing (~30F) and rises above
+"danger zone" (all the way to ~44F) in a single compressor cycle. I've been trying
+to mitigate this by adding more air circulation and more thermal mass - that has
+mostly helped with keeping the bottom end of the temperature from dropping too low,
+but hasn't really helped with the top end. I think it's because the compressor
+only clicks on when it thinks fridge temp has hit ~42F. Fixing that would take
+a good amount more effort since I'd need to rewire the compressor or take over
+for the sensor, but I think the mean temp has sat around the target line.
+
+- I did move the meat from the top third to the bottom third of the fridge to try
+and keep the meat mostly colder than the "danger zone" and that made me feel better
+about relative risk.
+
+- Humidity also swings a lot and is sitting really high through the first week.
+The meat is definitely giving off a lot of the humidity right now so I'm not overly
+worried, but I did add a tray of salt to try and control the mean humidity down
+a little. Not sure that's working but I know that as the meat dries out and forms
+the pellicle the humidity will drop, so I will have the opposite problem towards
+the end of trying to maintain _enough_ humidity.
+
+- I was worried about the fridge being _too_ humid to the point of condensation on
+the walls - the 80th to 95th percentile range of fridge humidity is peaking over 100%.
+I think I'm okay with where that sits for now, but I did try recalibrating the sensor:
+it was reading a little lower than what it should have compared to my
+Combustion probe thermometer (and I found the TempPro thermohygrometer to be kind
+of trash quality). Thus far, I'm not _seeing_ condensation build up on the sides
+of the fridge (either water or ice) so I'm probably just eyeball monitoring that
+for now.
+
+- I started with a cheap USB powered desktop fan but the cable was too thick and
+caused air leaks, so I switched to a case fan with standalone controller and that
+is both stronger and has a thinner cable. I'm not controlling the case fan with
+my Pi yet but I think I could eventually do that if I cared to. There are some
+diminishing returns on it though, the more fan speed I have the more wildly the
+temperature and humidity vary. I think this is mostly due to the sensor sensitivity.
+
 ## todo
 
 - add more thermal mass to fridge to reduce temperature swings
-- automate report generation via cron on the Pi (?)
