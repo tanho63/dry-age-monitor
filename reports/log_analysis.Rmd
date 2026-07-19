@@ -59,7 +59,7 @@ Current dry-age duration: `r round(end_date - start_date, 1)` days
 
 Starting weight: 14.2 lbs
 
-Start date: `r format(start_date, "%Y-%m%d")`
+Start date: `r format(start_date, "%Y-%m-%d")`
 
 Target date: `r format(start_date + lubridate::days(45), "%Y-%m-%d")` (45 days)
 
