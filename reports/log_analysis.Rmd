@@ -33,7 +33,7 @@ suppressPackageStartupMessages({
 here::i_am("reports/log_analysis.Rmd")
 ```
 ```{r parameters, echo = FALSE}
-roll_minutes <- 60
+roll_minutes <- 90
 start_date <- lubridate::as_datetime("2026-07-13 12:00:00 UTC")
 end_date <- Sys.time()
 events <- tibble::tribble(
@@ -318,6 +318,12 @@ table_rolling_metrics <- function(
   metric_name,
   n_digits = 2
 ) {
+  roll_by <- if (roll_minutes > 60) {
+    lubridate::minutes(60)
+  } else {
+    lubridate::minutes(roll_minutes)
+  }
+
   rolling_metrics |>
     dplyr::filter(metric == metric_name, metric_type != "raw_value") |>
     dplyr::mutate(
@@ -339,7 +345,7 @@ table_rolling_metrics <- function(
     dplyr::mutate(
       timestamp = lubridate::floor_date(
         timestamp,
-        unit = lubridate::minutes(roll_minutes)
+        unit = roll_by
       )
     ) |>
     dplyr::summarize(
@@ -349,7 +355,7 @@ table_rolling_metrics <- function(
     knitr::kable()
 }
 
-table_rolling_metrics("temperature_f",  1)
+table_rolling_metrics("temperature_f", 1)
 table_rolling_metrics("humidity_pct", 1)
 table_rolling_metrics("temp_minus_dewpoint", 1)
 table_rolling_metrics("gas_ohms", 0)
