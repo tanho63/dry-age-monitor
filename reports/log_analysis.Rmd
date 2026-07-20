@@ -38,7 +38,7 @@ start_date <- lubridate::as_datetime("2026-07-13 12:00:00 UTC")
 end_date <- Sys.time()
 events <- tibble::tribble(
   ~timestamp                                        , ~label                                  ,
-  lubridate::as_datetime("2026-07-13 11:00:00 UTC") , "ribeye added to fridge"                ,
+  lubridate::as_datetime("2026-07-13 22:00:00 UTC") , "ribeye added to fridge"                ,
   lubridate::as_datetime("2026-07-14 22:00:00 UTC") , "initial monitor setup"                 ,
   lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "usb fan installed vertically"          ,
   lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "usb fan reinstalled horizontally"      ,
@@ -66,7 +66,11 @@ Target date: `r format(start_date + lubridate::days(45), "%Y-%m-%d")` (45 days)
 
 ## event timeline
 ```{r event_timeline}
-knitr::kable(events)
+events |>
+  dplyr::mutate(
+    timestamp = lubridate::with_tz(timestamp, "America/Toronto")
+  ) |>
+  knitr::kable()
 ```
 ```{r utils}
 .dew_point <- function(temp_c, rh_pct) {
