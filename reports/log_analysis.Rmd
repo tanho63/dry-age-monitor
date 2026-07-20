@@ -180,7 +180,7 @@ plot_rolling_metric <- function(
   plot <- rolling_metrics |>
     dplyr::filter(metric_name == metric, metric_type != "raw_value") |>
     ggplot(aes(x = timestamp)) +
-    geom_line(aes(y = value, color = metric_type), size = 1) +
+    geom_line(aes(y = value, color = metric_type), linewidth = 1) +
     tantastic::theme_tantastic(
       base_size = 16,
       plot_title_size = 20,
