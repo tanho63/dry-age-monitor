@@ -125,7 +125,3 @@ is both stronger and has a thinner cable. I'm not controlling the case fan with
 my Pi yet but I think I could eventually do that if I cared to. There are some
 diminishing returns on it though, the more fan speed I have the more wildly the
 temperature and humidity vary. I think this is mostly due to the sensor sensitivity.
-
-## todo
-
-- add more thermal mass to fridge to reduce temperature swings
