@@ -67,8 +67,9 @@ Target date: `r format(start_date + lubridate::days(45), "%Y-%m-%d")` (45 days)
 ## event timeline
 ```{r event_timeline}
 events |>
-  dplyr::mutate(
-    timestamp = lubridate::with_tz(timestamp, "America/Toronto")
+  dplyr::transmute(
+    local_time = lubridate::with_tz(timestamp, "America/Toronto"),
+    event = label
   ) |>
   knitr::kable()
 ```

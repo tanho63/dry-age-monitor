@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-20 09:06:10.206706
+2026-07-20 09:07:09.200418
 
 ``` r
 knitr::opts_chunk$set(echo = FALSE, dev = "ragg_png")
@@ -37,7 +37,7 @@ Target date: 2026-08-27 (45 days)
 
 ## event timeline
 
-| timestamp           | label                                 |
+| local_time          | event                                 |
 |:--------------------|:--------------------------------------|
 | 2026-07-13 18:00:00 | ribeye added to fridge                |
 | 2026-07-14 18:00:00 | initial monitor setup                 |
