@@ -33,7 +33,7 @@ suppressPackageStartupMessages({
 here::i_am("reports/log_analysis.Rmd")
 ```
 ```{r parameters, echo = FALSE}
-roll_minutes <- 30
+roll_minutes <- 90
 start_date <- lubridate::as_datetime("2026-07-13 12:00:00 UTC")
 end_date <- Sys.time()
 events <- tibble::tribble(
