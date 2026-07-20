@@ -50,7 +50,7 @@ events <- tibble::tribble(
   lubridate::as_datetime("2026-07-18 04:30:00 UTC") , "adjust fan orientation"                ,
   lubridate::as_datetime("2026-07-18 14:30:00 UTC") , "add salt tray"                         ,
   lubridate::as_datetime("2026-07-18 16:15:00 UTC") , "relocate to lower rack"                ,
-  lubridate::as_datetime("2026-07-18 16:15:00 UTC") , "add two more water jugs"                ,
+  lubridate::as_datetime("2026-07-19 18:30:00 UTC") , "add two more water jugs"               ,
 )
 ```
 
