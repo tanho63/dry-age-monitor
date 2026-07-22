@@ -212,6 +212,16 @@ plot_rolling_metric <- function(
               data = metric_reference_lines
             )
           },
+          geom_textsmooth(
+            aes(y = value, color = metric_type, label = metric_type),
+            linewidth = 1,
+            method = "gam",
+            textcolour = "white",
+            formula = y ~ s(x, bs = "cs"),
+            alpha = 1,
+            hjust = 0.75,
+            n = 2000
+          ),
           if (!is.null(timestamp_reference_lines)) {
             geom_labelvline(
               xintercept = timestamp_reference_lines$timestamp,
@@ -228,16 +238,6 @@ plot_rolling_metric <- function(
               data = timestamp_reference_lines
             )
           },
-          geom_textsmooth(
-            aes(y = value, color = metric_type, label = metric_type),
-            linewidth = 1,
-            method = "gam",
-            textcolour = "white",
-            formula = y ~ s(x, bs = "cs"),
-            alpha = 1,
-            hjust = 0.75,
-            n = 2000
-          ),
           scale_y_continuous(
             limits = metric_limits,
             expand = ggplot2::expansion(c(0.2, 0)),
@@ -291,18 +291,6 @@ plot_rolling_metric(
     y = c(75, 85, 100),
     label = c("lower", "upper", "saturation")
   ),
-)
-
-plot_rolling_metric(
-  metric_name = "temp_minus_dewpoint",
-  rolling_metrics = rolling_metrics,
-  roll_minutes = roll_minutes,
-  plot_title = "Temp Minus Dewpoint",
-  plot_subtitle = "Reaching zero indicates saturation/condensation",
-  metric_units = "degrees F",
-  timestamp_reference_lines = events,
-  metric_limits = NULL,
-  metric_reference_lines = data.frame(y = 0, label = "saturation")
 )
 
 plot_rolling_metric(
