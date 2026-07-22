@@ -313,6 +313,7 @@ plot_rolling_metric(
   rolling_metrics = rolling_metrics,
   roll_minutes = roll_minutes,
   plot_title = "Air Pressure",
+  plot_subtitle = "apparently just a weather thing? who knows."
   metric_units = "hPa",
   timestamp_limits = NULL,
   timestamp_reference_lines = events,
