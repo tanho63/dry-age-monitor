@@ -33,7 +33,7 @@ suppressPackageStartupMessages({
 here::i_am("reports/log_analysis.Rmd")
 ```
 ```{r parameters, echo = FALSE}
-roll_minutes <- 90
+roll_minutes <- 60
 start_date <- lubridate::as_datetime("2026-07-13 12:00:00 UTC")
 end_date <- Sys.time()
 events <- tibble::tribble(
@@ -183,70 +183,85 @@ plot_rolling_metric <- function(
   metric_limits = NULL,
   metric_reference_lines = NULL
 ) {
-  plot <- rolling_metrics |>
-    dplyr::filter(metric_name == metric, metric_type != "raw_value") |>
-    ggplot(aes(x = timestamp)) +
-    geom_line(aes(y = value, color = metric_type), linewidth = 1) +
-    tantastic::theme_tantastic(
-      base_size = 16,
-      plot_title_size = 20,
-      axis_title_size = 16,
-      axis_text_size = 14,
-      caption_size = 12
-    ) +
-    scale_y_continuous(
-      limits = metric_limits,
-      expand = ggplot2::expansion(c(0.2, 0)),
-      minor_breaks = scales::minor_breaks_width(metric_breaks_width, 0)
-    ) +
-    scale_x_datetime(
-      limits = timestamp_limits,
-      expand = ggplot2::expansion(c(0.05, 0.1)),
-      timezone = "America/Toronto"
-    ) +
-    labs(
-      title = plot_title,
-      subtitle = plot_subtitle,
-      caption = glue::glue("Rolling metrics over last {roll_minutes} minutes"),
-      x = "Timestamp (America/Toronto)",
-      y = metric_units
-    ) +
-    theme(legend.position = "top")
+  d <- rolling_metrics |>
+    dplyr::filter(metric_name == metric, metric_type != "raw_value")
 
-  if (!is.null(metric_reference_lines)) {
-    suppressWarnings({
-      plot <- plot +
-        geom_texthline(
-          yintercept = metric_reference_lines$y,
-          label = metric_reference_lines$label,
-          color = "white",
-          hjust = 1,
-          data = metric_reference_lines
+  suppressWarnings({
+    p <- ggplot(aes(x = timestamp, y = value), data = d) +
+      purrr::compact(
+        list(
+          tantastic::theme_tantastic(
+            base_size = 16,
+            plot_title_size = 20,
+            axis_title_size = 16,
+            axis_text_size = 14,
+            caption_size = 12
+          ),
+          geom_point(
+            aes(y = value, color = metric_type),
+            size = 0.1,
+            alpha = 0.1
+          ),
+          if (!is.null(metric_reference_lines)) {
+            geom_texthline(
+              yintercept = metric_reference_lines$y,
+              label = metric_reference_lines$label,
+              color = "white",
+              alpha = 0.8,
+              hjust = 1,
+              data = metric_reference_lines
+            )
+          },
+          if (!is.null(timestamp_reference_lines)) {
+            geom_labelvline(
+              xintercept = timestamp_reference_lines$timestamp,
+              label = timestamp_reference_lines$label,
+              color = "white",
+              fill = "white",
+              textcolor = "black",
+              label.r = unit(0.05, "lines"),
+              label.padding = unit(0.05, "lines"),
+              alpha = 0.8,
+              hjust = 0.05,
+              linewidth = 0.5,
+              linetype = 2,
+              data = timestamp_reference_lines
+            )
+          },
+          geom_textsmooth(
+            aes(y = value, color = metric_type, label = metric_type),
+            linewidth = 1,
+            method = "gam",
+            textcolour = "white",
+            formula = y ~ s(x, bs = "cs"),
+            alpha = 1,
+            hjust = 0.75,
+            n = 2000
+          ),
+          scale_y_continuous(
+            limits = metric_limits,
+            expand = ggplot2::expansion(c(0.2, 0)),
+            minor_breaks = scales::minor_breaks_width(metric_breaks_width, 0)
+          ),
+          scale_x_datetime(
+            limits = timestamp_limits,
+            expand = ggplot2::expansion(c(0.05, 0.1)),
+            timezone = "America/Toronto"
+          ),
+          labs(
+            title = plot_title,
+            subtitle = plot_subtitle,
+            caption = glue::glue(
+              "Rolling metrics over last {roll_minutes} minutes"
+            ),
+            x = "Timestamp (America/Toronto)",
+            y = metric_units
+          ),
+          theme(legend.position = "none")
         )
-    })
-  }
-
-  if (!is.null(timestamp_reference_lines)) {
-    suppressWarnings({
-      plot <- plot +
-        geom_labelvline(
-          xintercept = timestamp_reference_lines$timestamp,
-          label = timestamp_reference_lines$label,
-          color = "white",
-          fill = "white",
-          textcolor = "black",
-          label.r = unit(0.05, "lines"),
-          label.padding = unit(0.05, "lines"),
-          alpha = 0.8,
-          hjust = 0.05,
-          linewidth = 0.5,
-          linetype = 2,
-          data = timestamp_reference_lines
-        )
-    })
-  }
-
-  return(plot)
+      )
+  })
+  return(p)
 }
 
 plot_rolling_metric(
@@ -366,4 +381,31 @@ table_rolling_metrics("humidity_pct", 1)
 table_rolling_metrics("temp_minus_dewpoint", 1)
 table_rolling_metrics("gas_ohms", 0)
 table_rolling_metrics("pressure_hpa", 0)
+```
+
+
+```{r}
+# readings |>
+#   ggplot(aes(x = timestamp, y = temperature_f)) +
+#   ggdist::stat_lineribbon() +
+#   # geom_smooth(aes(y = temperature_f)) +
+#       tantastic::theme_tantastic(
+#       base_size = 16,
+#       plot_title_size = 20,
+#       axis_title_size = 16,
+#       axis_text_size = 14,
+#       caption_size = 12
+#     ) +
+#     scale_y_continuous(
+#       # limits = metric_limits,
+#       expand = ggplot2::expansion(c(0.2, 0)),
+#       # minor_breaks = scales::minor_breaks_width(metric_breaks_width, 0)
+#     ) +
+#     scale_x_datetime(
+#       # limits = timestamp_limits,
+#       expand = ggplot2::expansion(c(0.05, 0.1)),
+#       timezone = "America/Toronto"
+#     )
+
+
 ```
