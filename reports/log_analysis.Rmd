@@ -367,34 +367,6 @@ table_rolling_metrics <- function(
 
 table_rolling_metrics("temperature_f", 1)
 table_rolling_metrics("humidity_pct", 1)
-table_rolling_metrics("temp_minus_dewpoint", 1)
 table_rolling_metrics("gas_ohms", 0)
 table_rolling_metrics("pressure_hpa", 0)
-```
-
-
-```{r}
-# readings |>
-#   ggplot(aes(x = timestamp, y = temperature_f)) +
-#   ggdist::stat_lineribbon() +
-#   # geom_smooth(aes(y = temperature_f)) +
-#       tantastic::theme_tantastic(
-#       base_size = 16,
-#       plot_title_size = 20,
-#       axis_title_size = 16,
-#       axis_text_size = 14,
-#       caption_size = 12
-#     ) +
-#     scale_y_continuous(
-#       # limits = metric_limits,
-#       expand = ggplot2::expansion(c(0.2, 0)),
-#       # minor_breaks = scales::minor_breaks_width(metric_breaks_width, 0)
-#     ) +
-#     scale_x_datetime(
-#       # limits = timestamp_limits,
-#       expand = ggplot2::expansion(c(0.05, 0.1)),
-#       timezone = "America/Toronto"
-#     )
-
-
 ```
