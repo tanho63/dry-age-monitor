@@ -360,7 +360,7 @@ table_rolling_metrics <- function(
       )
     ) |>
     dplyr::summarize(
-      dplyr::across(everything(), mean),
+      dplyr::across(everything(), \(x) mean(x, na.rm = TRUE) |> round(2)),
       .by = c(timestamp, metric)
     ) |>
     knitr::kable()
