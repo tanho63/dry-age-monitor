@@ -181,10 +181,11 @@ plot_rolling_metric <- function(
   metric_units = NULL,
   metric_breaks_width = 1,
   metric_limits = NULL,
-  metric_reference_lines = NULL
+  metric_reference_lines = NULL,
+  metric_types = c("roll05", "roll20", "rollmean", "roll80", "roll95")
 ) {
   d <- rolling_metrics |>
-    dplyr::filter(metric_name == metric, metric_type != "raw_value")
+    dplyr::filter(metric_name == metric, metric_type %in% metric_types)
 
   suppressWarnings({
     p <- ggplot(aes(x = timestamp, y = value), data = d) +
@@ -319,7 +320,8 @@ plot_rolling_metric(
   timestamp_reference_lines = events,
   metric_breaks_width = 100,
   metric_limits = NULL,
-  metric_reference_lines = NULL
+  metric_reference_lines = NULL,
+  metric_types = "rollmean"
 )
 ```
 
