@@ -43,13 +43,11 @@ events <- tibble::tribble(
   lubridate::as_datetime("2026-07-15 17:15:00 UTC") , "usb fan installed vertically"          ,
   lubridate::as_datetime("2026-07-15 23:45:00 UTC") , "usb fan reinstalled horizontally"      ,
   lubridate::as_datetime("2026-07-16 02:40:00 UTC") , "add water jug, duct-tape cable-gaps"   ,
-  lubridate::as_datetime("2026-07-16 19:20:00 UTC") , "more jugs, replace fan, use foam tape" ,
+  lubridate::as_datetime("2026-07-16 19:20:00 UTC") , "more jugs, use case fan + foam tape"   ,
   lubridate::as_datetime("2026-07-17 01:15:00 UTC") , "reorient fan horizontally"             ,
-  lubridate::as_datetime("2026-07-17 04:30:00 UTC") , "slow down fan"                         ,
   lubridate::as_datetime("2026-07-17 16:01:00 UTC") , "apply +0.5C calibration"               ,
   lubridate::as_datetime("2026-07-18 04:30:00 UTC") , "adjust fan orientation"                ,
-  lubridate::as_datetime("2026-07-18 14:30:00 UTC") , "add salt tray"                         ,
-  lubridate::as_datetime("2026-07-18 16:15:00 UTC") , "relocate to lower rack"                ,
+  lubridate::as_datetime("2026-07-18 14:30:00 UTC") , "add salt tray, relocate to lower rack" ,
   lubridate::as_datetime("2026-07-19 19:00:00 UTC") , "add two more water jugs"               ,
 )
 ```
