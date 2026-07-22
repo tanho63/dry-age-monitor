@@ -269,6 +269,7 @@ plot_rolling_metric(
   rolling_metrics = rolling_metrics,
   roll_minutes = roll_minutes,
   plot_title = "Temperature",
+  plot_subtitle = "Canadians do cooking in Fahrenheit ;)",
   metric_units = "degrees F",
   metric_limits = c(NA, 48),
   metric_reference_lines = data.frame(
