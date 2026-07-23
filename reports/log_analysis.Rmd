@@ -217,10 +217,10 @@ plot_rolling_metric <- function(
             linewidth = 1,
             method = "gam",
             textcolour = "white",
-            formula = y ~ s(x, bs = "cs"),
+            formula = y ~ s(x, bs = "cs", fx = TRUE, k = 50),
             alpha = 1,
             hjust = 0.75,
-            n = 2000
+            n = 1000
           ),
           if (!is.null(timestamp_reference_lines)) {
             geom_labelvline(
