@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-24 08:30:02.993812
+2026-07-24 08:45:02.732215
 
 ``` r
 knitr::opts_chunk$set(echo = FALSE, dev = "ragg_png")
@@ -60,7 +60,13 @@ Target date: 2026-08-27 (45 days)
     ## Warning: Removed 373 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](log_analysis_files/figure-gfm/plot-1.png)<!-- -->![](log_analysis_files/figure-gfm/plot-2.png)<!-- -->![](log_analysis_files/figure-gfm/plot-3.png)<!-- -->![](log_analysis_files/figure-gfm/plot-4.png)<!-- -->
+![](log_analysis_files/figure-gfm/plot-1.png)<!-- -->![](log_analysis_files/figure-gfm/plot-2.png)<!-- -->
+
+    ## Warning: The text offset exceeds the curvature in one or more paths. This will result in
+    ## displaced letters. Consider reducing the vjust or text size, or use the hjust
+    ## parameter to move the string to a different point on the path.
+
+![](log_analysis_files/figure-gfm/plot-3.png)<!-- -->![](log_analysis_files/figure-gfm/plot-4.png)<!-- -->
 
 ## Summary Tables
 
@@ -293,7 +299,7 @@ Target date: 2026-08-27 (45 days)
 | 2026-07-24 05:00:00 | temperature_f |  31.50 |  34.29 |    38.19 |  41.67 |  42.41 |
 | 2026-07-24 06:00:00 | temperature_f |  31.67 |  34.40 |    38.21 |  41.68 |  42.41 |
 | 2026-07-24 07:00:00 | temperature_f |  31.71 |  34.50 |    38.22 |  41.67 |  42.35 |
-| 2026-07-24 08:00:00 | temperature_f |  31.58 |  33.95 |    37.86 |  41.62 |  42.35 |
+| 2026-07-24 08:00:00 | temperature_f |  31.62 |  34.20 |    38.02 |  41.59 |  42.33 |
 
 | timestamp           | metric       | roll05 | roll20 | rollmean | roll80 | roll95 |
 |:--------------------|:-------------|-------:|-------:|---------:|-------:|-------:|
@@ -524,7 +530,7 @@ Target date: 2026-08-27 (45 days)
 | 2026-07-24 05:00:00 | humidity_pct |  57.85 |  70.31 |    90.45 | 102.75 | 102.93 |
 | 2026-07-24 06:00:00 | humidity_pct |  57.59 |  70.58 |    90.36 | 102.66 | 102.80 |
 | 2026-07-24 07:00:00 | humidity_pct |  56.93 |  70.61 |    90.01 | 102.71 | 102.82 |
-| 2026-07-24 08:00:00 | humidity_pct |  56.57 |  66.58 |    88.17 | 102.70 | 102.90 |
+| 2026-07-24 08:00:00 | humidity_pct |  56.68 |  67.79 |    89.12 | 102.69 | 102.90 |
 
 | timestamp           | metric   |   roll05 |   roll20 | rollmean |   roll80 |   roll95 |
 |:--------------------|:---------|---------:|---------:|---------:|---------:|---------:|
@@ -755,7 +761,7 @@ Target date: 2026-08-27 (45 days)
 | 2026-07-24 05:00:00 | gas_ohms | 18800.00 | 18914.17 | 21068.22 | 23635.83 | 28581.67 |
 | 2026-07-24 06:00:00 | gas_ohms | 18864.17 | 18968.33 | 21295.51 | 24259.17 | 28838.33 |
 | 2026-07-24 07:00:00 | gas_ohms | 18900.00 | 19069.17 | 21497.49 | 24112.50 | 29080.00 |
-| 2026-07-24 08:00:00 | gas_ohms | 18900.00 | 19083.33 | 21650.83 | 24856.67 | 29161.67 |
+| 2026-07-24 08:00:00 | gas_ohms | 18900.00 | 19088.89 | 21494.23 | 24437.78 | 29107.78 |
 
 | timestamp           | metric       |  roll05 |  roll20 | rollmean |  roll80 |  roll95 |
 |:--------------------|:-------------|--------:|--------:|---------:|--------:|--------:|
