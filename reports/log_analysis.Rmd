@@ -219,7 +219,7 @@ plot_rolling_metric <- function(
             textcolour = "white",
             formula = y ~ s(x, bs = "cs", fx = TRUE, k = 50),
             alpha = 1,
-            hjust = 0.75,
+            hjust = 0.25,
             n = 1000
           ),
           if (!is.null(timestamp_reference_lines)) {
