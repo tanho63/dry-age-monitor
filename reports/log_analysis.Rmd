@@ -416,3 +416,24 @@ dplyr::mutate(
     names_vary = "slowest"
   )
 ```
+
+```{r}
+table_cycle_metrics <- function(
+  metric_name,
+  n_digits = 2
+) {
+  cycle_metrics |>
+    dplyr::select(
+      starts_with("cycle"),
+      starts_with(metric_name)
+    ) |>
+    dplyr::mutate(
+      across(starts_with(metric_name), \(x) round(x, 2))
+    ) |>
+    knitr::kable()
+}
+table_rolling_metrics("temperature_f", 1)
+table_rolling_metrics("humidity_pct", 1)
+table_rolling_metrics("gas_ohms", 0)
+table_rolling_metrics("pressure_hpa", 0)
+```
