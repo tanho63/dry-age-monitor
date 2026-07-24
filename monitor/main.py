@@ -58,15 +58,21 @@ def read_row(sensor):
     if not sensor.get_sensor_data():
         return None
     d = sensor.data
-    ts = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    t = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     # gas_resistance is only meaningful when heat_stable is True; else null
     gas = round(d.gas_resistance) if getattr(d, "heat_stable", False) else None
+    tc = round(d.temperature, 2)
+    tf = round(d.temperature * 9/5 + 32, 1)
+    rh = round(d.humidity, 2)
+    p = round(d.pressure, 2)
+    print(f"{tf}F, {rh}%RH", flush = True)
+
     return {
-        "timestamp": ts,
-        "temperature_c": round(d.temperature, 2),
-        "temperature_f": round(d.temperature * 9/5 + 32, 1),
-        "humidity_pct": round(d.humidity, 2),
-        "pressure_hpa": round(d.pressure, 2),
+        "timestamp": t,
+        "temperature_c": tc,
+        "temperature_f": tf,
+        "humidity_pct": rh,
+        "pressure_hpa": p,
         "gas_ohms": gas,
     }
 
