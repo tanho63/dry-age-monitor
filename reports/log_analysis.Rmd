@@ -91,37 +91,17 @@ readings <- list.files(path = here::here("logs"), full.names = TRUE) |>
   lapply(yyjsonr::read_ndjson_file) |>
   tibble::tibble() |>
   tidyr::unnest(1) |>
+  dplyr::filter(timestamp >= start_date & timestamp <= end_date) |>
   dplyr::mutate(
     timestamp = lubridate::as_datetime(timestamp),
-    temperature_f = c_to_f(temperature_c),
-    dew_point_f = .dew_point(temperature_c, humidity_pct) |> c_to_f(),
-    temp_minus_dewpoint = temperature_f - dew_point_f,
-    temp_zone = dplyr::case_when(
-      temperature_f >= 40 ~ "danger",
-      temperature_f >= 38 ~ "above target",
-      dplyr::between(temperature_f, 34, 38) ~ "target",
-      temperature_f >= 32 ~ "below target",
-      temperature_f < 32 ~ "below freezing"
-    ),
-    humidity_zone = dplyr::case_when(
-      humidity_pct >= 100 ~ "saturation",
-      humidity_pct >= 85 ~ "above target",
-      humidity_pct >= 75 ~ "target",
-      humidity_pct < 75 ~ "below target"
-    ),
-    dewpoint_zone = dplyr::case_when(
-      temp_minus_dewpoint > 0 ~ "ok",
-      temp_minus_dewpoint <= 0 ~ "saturation"
-    )
-  ) |>
-  dplyr::filter(timestamp >= start_date & timestamp <= end_date)
+    temperature_f = c_to_f(temperature_c) |> round(2)
+  )
 
 rolling_metrics <- readings |>
   dplyr::select(
     timestamp,
     temperature_f,
     humidity_pct,
-    temp_minus_dewpoint,
     gas_ohms,
     pressure_hpa
   ) |>
@@ -199,7 +179,7 @@ plot_rolling_metric <- function(
           ),
           geom_point(
             aes(y = value, color = metric_type),
-            size = 0.1,
+            size = 0.2,
             alpha = 0.1
           ),
           if (!is.null(metric_reference_lines)) {
@@ -212,14 +192,13 @@ plot_rolling_metric <- function(
               data = metric_reference_lines
             )
           },
-          geom_textsmooth(
+          geom_smooth(
             aes(y = value, color = metric_type, label = metric_type),
             linewidth = 1,
             method = "gam",
-            textcolour = "white",
-            formula = y ~ s(x, bs = "cs", fx = TRUE, k = 50),
+            formula = y ~ s(x, bs = "cs", fx = TRUE, k = 100),
             alpha = 1,
-            hjust = 0.25,
+            size = 0.5,
             n = 1000
           ),
           if (!is.null(timestamp_reference_lines)) {
@@ -257,7 +236,7 @@ plot_rolling_metric <- function(
             x = "Timestamp (America/Toronto)",
             y = metric_units
           ),
-          theme(legend.position = "none")
+          theme(legend.position = "top")
         )
       )
   })
@@ -371,4 +350,69 @@ table_rolling_metrics("temperature_f", 1)
 table_rolling_metrics("humidity_pct", 1)
 table_rolling_metrics("gas_ohms", 0)
 table_rolling_metrics("pressure_hpa", 0)
+```
+
+## Cycle Analysis
+```{r cycle_metrics}
+cycle_metrics <- readings |>
+  dplyr::mutate(
+    cycle_trend = ifelse(
+      dplyr::lag(temperature_f, default = Inf) > temperature_f,
+      "down",
+      "up"
+    ),
+    cycle_num = dplyr::consecutive_id(cycle_trend)
+  ) |>
+  dplyr::mutate(
+    cycle_duration = max(timestamp) - min(timestamp),
+    .by = cycle_num
+  ) |>
+  # collapse cycles shorter than 90s with the previous cycle
+dplyr::mutate(
+  cycle_num = ifelse(cycle_duration <= lubridate::seconds(90), NA, cycle_num) |>
+    vctrs::vec_fill_missing(direction = "down") |>
+    dplyr::consecutive_id(),
+  cycle_trend = ifelse(cycle_duration <= lubridate::seconds(90), NA, cycle_trend) |>
+    vctrs::vec_fill_missing(direction = "down")
+) |>
+  dplyr::mutate(
+    cycle_start_time = min(timestamp),
+    cycle_end_time = max(timestamp),
+    cycle_duration = max(timestamp) - min(timestamp),
+    .by = cycle_num
+  ) |>
+  dplyr::select(
+    cycle_num,
+    cycle_trend,
+    starts_with("cycle"),
+    temperature_f,
+    humidity_pct,
+    gas_ohms,
+    pressure_hpa
+  ) |>
+  tidyr::pivot_longer(
+    -starts_with("cycle"),
+    names_to = "metric",
+    values_to = "raw_value"
+  ) |>
+  dplyr::summarise(
+    .by = c(starts_with("cycle"), "metric"),
+    mean = mean(raw_value, na.rm = TRUE),
+    quantiles = quantile(
+      raw_value,
+      c(0.05, 0.20, 0.8, 0.95),
+      na.rm = TRUE
+    ) |>
+      round(2) |>
+      setNames(c("p05", "p20", "p80", "p95")) |>
+      as.list() |>
+      list()
+  ) |>
+  tidyr::unnest_wider(quantiles) |>
+  tidyr::pivot_wider(
+    names_from = metric,
+    values_from = c(mean, starts_with("p")),
+    names_glue = "{metric}_{.value}",
+    names_vary = "slowest"
+  )
 ```
