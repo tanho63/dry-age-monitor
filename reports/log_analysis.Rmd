@@ -350,10 +350,12 @@ plot_cycle_metric(
 
 ```
 
+<details><summary>table</summary>
+
 ```{r table_temp}
 table_cycle_metrics("temperature_f", n_digits = 2)
-
 ```
+</details>
 
 ### Relative Humidity
 
@@ -372,9 +374,13 @@ plot_cycle_metric(
   )
 )
 ```
+
+<details><summary>table</summary>
+
 ```{r table_humidity}
 table_cycle_metrics("humidity_pct", 1)
 ```
+</details>
 
 ### Gas
 
@@ -392,9 +398,11 @@ plot_cycle_metric(
   metric_reference_lines = NULL
 )
 ```
+<details><summary>table</summary>
 ```{r table_gas}
 table_cycle_metrics("gas_ohms", 0)
 ```
+</details>
 
 ### Pressure
 
@@ -413,6 +421,10 @@ plot_cycle_metric(
   metric_types = "mean"
 )
 ```
+
+<details><summary>table</summary>
+
 ```{r table_pressure}
 table_cycle_metrics("pressure_hpa", 0)
 ```
+</details>
