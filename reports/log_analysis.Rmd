@@ -285,7 +285,7 @@ plot_cycle_metric <- function(
 ```{r table_fn}
 table_cycle_metrics <- function(metric_name, n_digits) {
   cycle_metrics |>
-    dplyr::filter(metric == metric_name, metric_type != "raw_value") |>
+    dplyr::filter(metric == metric_name, metric_type != "raw_value", cycle_num != max(cycle_num)) |>
     dplyr::mutate(
       metric_type = forcats::fct_relevel(
         metric_type,
@@ -343,6 +343,7 @@ plot_cycle_metric(
 
 ```{r table_temp}
 table_cycle_metrics("temperature_f", n_digits = 2)
+
 ```
 
 ### Relative Humidity
@@ -370,7 +371,7 @@ table_cycle_metrics("humidity_pct", 1)
 
 ```{r plot_gas}
 plot_cycle_metric(
-  metric_name = "temperature_f",
+  metric_name = "gas_ohms",
   cycle_metrics = cycle_metrics,
   plot_title = "Gas Resistance",
   plot_subtitle = "Higher values indicate cleaner air = less offgassing",
@@ -390,7 +391,7 @@ table_cycle_metrics("gas_ohms", 0)
 
 ```{r plot_pressure}
 plot_cycle_metric(
-  metric_name = "temperature_f",
+  metric_name = "pressure_hpa",
   cycle_metrics = cycle_metrics,
   plot_title = "Air Pressure",
   plot_subtitle = "apparently just a weather thing? who knows.",
