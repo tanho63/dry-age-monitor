@@ -303,18 +303,21 @@ table_cycle_metrics <- function(metric_name, n_digits) {
       values_from = value
     ) |>
     dplyr::mutate(
-      cycle_start = lubridate::with_tz(cycle_start_time, "America/Toronto")
+      cycle_start = lubridate::with_tz(cycle_start_time, "America/Toronto"),
+      cycle_duration = lubridate::seconds_to_period(cycle_duration),
+      cycle_duration_up = lubridate::seconds_to_period(cycle_duration_up),
+      cycle_duration_down = lubridate::seconds_to_period(cycle_duration_down)
     ) |>
     dplyr::select(
       cycle_start,
-      cycle_duration,
-      cycle_duration_up,
-      cycle_duration_down,
       mean,
       p05,
       p20,
       p80,
-      p95
+      p95,
+      cycle_duration,
+      cycle_duration_up,
+      cycle_duration_down,
     ) |>
     knitr::kable()
 }
@@ -339,7 +342,7 @@ plot_cycle_metric(
 ```
 
 ```{r table_temp}
-table_cycle_metrics("temperature_f", n_digits = 1)
+table_cycle_metrics("temperature_f", n_digits = 2)
 ```
 
 ### Relative Humidity
