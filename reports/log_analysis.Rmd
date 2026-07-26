@@ -237,7 +237,7 @@ plot_cycle_metric <- function(
             alpha = 1,
             linewidth = 1.5,
             span = 0.1,
-            hjust = 0.1,
+            hjust = 0.5,
             textcolor = "white",
             se = F
           ),
@@ -331,7 +331,7 @@ plot_cycle_metric(
   plot_title = "Temperature",
   plot_subtitle = "Canadians do cooking in Fahrenheit ;)",
   metric_units = "degrees F",
-  metric_limits = c(NA, 48),
+  # metric_limits = c(NA, 48),
   metric_reference_lines = data.frame(
     y = c(32, 34, 38, 40),
     label = c("freezing", "lower", "upper", "danger")

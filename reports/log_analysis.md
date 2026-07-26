@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-26 11:16:09.583859
+2026-07-26 11:23:47.673558
 
     ## here() starts at /home/tan/_github/dry-age-monitor
 
@@ -43,9 +43,9 @@ Target date: 2026-08-27 (45 days)
 
 ### Temperature
 
-    ## Warning: Removed 12 rows containing non-finite outside the scale range (`stat_smooth()`).
+    ## Warning: Removed 4 rows containing non-finite outside the scale range (`stat_smooth()`).
 
-    ## Warning: Removed 12 rows containing missing values or values outside the scale range
+    ## Warning: Removed 4 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
 ![](log_analysis_files/figure-gfm/plot_tempf-1.png)<!-- -->
