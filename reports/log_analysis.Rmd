@@ -237,7 +237,7 @@ plot_cycle_metric <- function(
             alpha = 1,
             linewidth = 1.5,
             span = 0.1,
-            hjust = 0.9,
+            hjust = 0.1,
             textcolor = "white",
             se = F
           ),
