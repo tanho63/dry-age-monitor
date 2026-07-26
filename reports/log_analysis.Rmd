@@ -96,78 +96,114 @@ readings <- list.files(path = here::here("logs"), full.names = TRUE) |>
     timestamp = lubridate::as_datetime(timestamp),
     temperature_f = c_to_f(temperature_c) |> round(2)
   )
-
-rolling_metrics <- readings |>
+```
+## Cycle Analysis
+```{r cycle_metrics}
+cycle_metrics <- readings |>
+  dplyr::mutate(
+    cycle_trend = ifelse(
+      dplyr::lag(temperature_f, default = Inf) > temperature_f,
+      "down",
+      "up"
+    ),
+    cycle_num = dplyr::consecutive_id(cycle_trend)
+  ) |>
+  dplyr::mutate(
+    cycle_duration = max(timestamp) - min(timestamp),
+    .by = cycle_num
+  ) |>
+  # collapse cycles shorter than 90s with the previous cycle
+  dplyr::mutate(
+    cycle_trend = ifelse(
+      cycle_duration <= lubridate::seconds(90),
+      NA,
+      cycle_trend
+    ) |>
+      vctrs::vec_fill_missing(direction = "down"),
+  ) |>
+  dplyr::mutate(
+    cycle_num = cumsum(
+      cycle_trend != dplyr::lag(cycle_trend, default = "down") &
+        cycle_trend == "down"
+    )
+  ) |>
+  # recalculate new cycle durations
+  dplyr::mutate(
+    cycle_duration = max(timestamp) - min(timestamp),
+    cycle_duration_up = max(timestamp[cycle_trend == "up"]) -
+      min(timestamp[cycle_trend == "up"]),
+    cycle_duration_down = max(timestamp[cycle_trend == "down"]) -
+      min(timestamp[cycle_trend == "down"]),
+    cycle_start_time = min(timestamp),
+    cycle_trend = NULL,
+    .by = cycle_num
+  ) |>
   dplyr::select(
-    timestamp,
+    cycle_num,
+    starts_with("cycle"),
     temperature_f,
     humidity_pct,
     gas_ohms,
-    pressure_hpa
+    pressure_hpa,
   ) |>
   tidyr::pivot_longer(
-    -timestamp,
+    -starts_with("cycle"),
     names_to = "metric",
     values_to = "raw_value"
   ) |>
-  dplyr::mutate(
-    rollmean = slider::slide_index_dbl(
-      .x = raw_value,
-      .i = timestamp,
-      .f = \(x) mean(x, na.rm = TRUE),
-      .before = lubridate::minutes(roll_minutes)
-    ),
-    roll = slider::slide_index(
-      .x = raw_value,
-      .i = timestamp,
-      .f = \(x) {
-        quantile(x, c(0.05, 0.2, 0.8, 0.95), na.rm = TRUE) |>
-          setNames(nm = c("roll05", "roll20", "roll80", "roll95"))
-      },
-      .before = lubridate::minutes(roll_minutes)
-    ),
-    .by = metric
+  dplyr::summarise(
+    .by = c(starts_with("cycle"), "metric"),
+    mean = mean(raw_value, na.rm = TRUE),
+    quantiles = quantile(
+      raw_value,
+      c(0.05, 0.20, 0.8, 0.95),
+      na.rm = TRUE
+    ) |>
+      round(2) |>
+      setNames(c("p05", "p20", "p80", "p95")) |>
+      as.list() |>
+      list()
   ) |>
-  tidyr::unnest_wider(roll) |>
+  tidyr::unnest_wider(quantiles) |>
   tidyr::pivot_longer(
-    cols = c("raw_value", starts_with("roll")),
+    cols = c("mean", starts_with("p")),
     names_to = "metric_type",
     values_to = "value"
   ) |>
   dplyr::mutate(
     metric_type = forcats::fct_relevel(
       metric_type,
-      "raw_value",
-      "roll05",
-      "roll20",
-      "rollmean",
-      "roll80",
-      "roll95"
-    )
+      "p05",
+      "p20",
+      "mean",
+      "p80",
+      "p95"
+    ),
+    value = round(value, 3)
   )
 ```
 
-## Rolling Average Plots
-```{r plot}
-plot_rolling_metric <- function(
+```{r plot_fn}
+plot_cycle_metric <- function(
   metric_name,
-  rolling_metrics,
-  roll_minutes,
+  cycle_metrics,
   plot_title = NULL,
   plot_subtitle = NULL,
+  plot_caption = NULL,
   timestamp_limits = NULL,
   timestamp_reference_lines = NULL,
   metric_units = NULL,
   metric_breaks_width = 1,
   metric_limits = NULL,
   metric_reference_lines = NULL,
-  metric_types = c("roll05", "roll20", "rollmean", "roll80", "roll95")
+  metric_types = c("p05", "p20", "mean", "p80", "p95")
 ) {
-  d <- rolling_metrics |>
-    dplyr::filter(metric_name == metric, metric_type %in% metric_types)
+  d <- cycle_metrics |>
+    dplyr::filter(metric_name == metric, metric_type %in% metric_types) |>
+    dplyr::filter(cycle_num < max(cycle_num))
 
   suppressWarnings({
-    p <- ggplot(aes(x = timestamp, y = value), data = d) +
+    p <- ggplot(aes(x = cycle_start_time, y = value), data = d) +
       purrr::compact(
         list(
           tantastic::theme_tantastic(
@@ -179,8 +215,8 @@ plot_rolling_metric <- function(
           ),
           geom_point(
             aes(y = value, color = metric_type),
-            size = 0.2,
-            alpha = 0.1
+            size = 0.5,
+            alpha = 0.5
           ),
           if (!is.null(metric_reference_lines)) {
             geom_texthline(
@@ -188,18 +224,22 @@ plot_rolling_metric <- function(
               label = metric_reference_lines$label,
               color = "white",
               alpha = 0.8,
+              linewidth = 0.5,
               hjust = 1,
               data = metric_reference_lines
             )
           },
-          geom_smooth(
+          geom_textsmooth(
             aes(y = value, color = metric_type, label = metric_type),
             linewidth = 1,
-            method = "gam",
-            formula = y ~ s(x, bs = "cs", fx = TRUE, k = 100),
+            method = "loess",
+            formula = y ~ x,
             alpha = 1,
-            size = 0.5,
-            n = 1000
+            linewidth = 1.5,
+            span = 0.1,
+            hjust = 0.9,
+            textcolor = "white",
+            se = F
           ),
           if (!is.null(timestamp_reference_lines)) {
             geom_labelvline(
@@ -225,28 +265,29 @@ plot_rolling_metric <- function(
           scale_x_datetime(
             limits = timestamp_limits,
             expand = ggplot2::expansion(c(0.05, 0.1)),
+            # minor_breaks = scales::minor_breaks_width("1 days", "0 day"),
             timezone = "America/Toronto"
           ),
           labs(
             title = plot_title,
             subtitle = plot_subtitle,
-            caption = glue::glue(
-              "Rolling metrics over last {roll_minutes} minutes"
-            ),
+            caption = plot_caption,
             x = "Timestamp (America/Toronto)",
             y = metric_units
           ),
-          theme(legend.position = "top")
+          theme(legend.position = "none")
         )
       )
   })
   return(p)
 }
+```
+### Temperature
 
-plot_rolling_metric(
+```{r plot_tempf}
+plot_cycle_metric(
   metric_name = "temperature_f",
-  rolling_metrics = rolling_metrics,
-  roll_minutes = roll_minutes,
+  cycle_metrics = cycle_metrics,
   plot_title = "Temperature",
   plot_subtitle = "Canadians do cooking in Fahrenheit ;)",
   metric_units = "degrees F",
@@ -258,10 +299,18 @@ plot_rolling_metric(
   timestamp_reference_lines = events
 )
 
-plot_rolling_metric(
+```
+
+```{r table_temp}
+table_cycle_metrics("temperature_f", n_digits = 1)
+```
+
+### Relative Humidity
+
+```{r plot_humidity}
+plot_cycle_metric(
   metric_name = "humidity_pct",
-  rolling_metrics = rolling_metrics,
-  roll_minutes = roll_minutes,
+  cycle_metrics = cycle_metrics,
   plot_title = "Relative Humidity",
   plot_subtitle = "Percentage of theoretical maximum water vapor that can be held in the air at this temperature",
   metric_units = "Percent",
@@ -270,13 +319,19 @@ plot_rolling_metric(
   metric_reference_lines = data.frame(
     y = c(75, 85, 100),
     label = c("lower", "upper", "saturation")
-  ),
+  )
 )
+```
+```{r table_humidity}
+table_cycle_metrics("humidity_pct", 1)
+```
 
-plot_rolling_metric(
-  metric_name = "gas_ohms",
-  rolling_metrics = rolling_metrics,
-  roll_minutes = roll_minutes,
+### Gas
+
+```{r plot_gas}
+plot_cycle_metric(
+  metric_name = "temperature_f",
+  cycle_metrics = cycle_metrics,
   plot_title = "Gas Resistance",
   plot_subtitle = "Higher values indicate cleaner air = less offgassing",
   metric_units = "Ohms",
@@ -286,11 +341,17 @@ plot_rolling_metric(
   metric_breaks_width = 1000,
   metric_reference_lines = NULL
 )
+```
+```{r table_gas}
+table_cycle_metrics("gas_ohms", 0)
+```
 
-plot_rolling_metric(
-  metric_name = "pressure_hpa",
-  rolling_metrics = rolling_metrics,
-  roll_minutes = roll_minutes,
+### Pressure
+
+```{r plot_pressure}
+plot_cycle_metric(
+  metric_name = "temperature_f",
+  cycle_metrics = cycle_metrics,
   plot_title = "Air Pressure",
   plot_subtitle = "apparently just a weather thing? who knows.",
   metric_units = "hPa",
@@ -299,142 +360,9 @@ plot_rolling_metric(
   metric_breaks_width = 100,
   metric_limits = NULL,
   metric_reference_lines = NULL,
-  metric_types = "rollmean"
+  metric_types = "mean"
 )
 ```
-
-## Summary Tables
-```{r table}
-table_rolling_metrics <- function(
-  metric_name,
-  n_digits = 2
-) {
-  roll_by <- if (roll_minutes > 60) {
-    lubridate::minutes(60)
-  } else {
-    lubridate::minutes(roll_minutes)
-  }
-
-  rolling_metrics |>
-    dplyr::filter(metric == metric_name, metric_type != "raw_value") |>
-    dplyr::mutate(
-      metric_type = forcats::fct_relevel(
-        metric_type,
-        "roll05",
-        "roll20",
-        "rollmean",
-        "roll80",
-        "roll95"
-      ),
-      value = round(value, n_digits)
-    ) |>
-    dplyr::arrange(metric_type) |>
-    tidyr::pivot_wider(
-      names_from = metric_type,
-      values_from = value
-    ) |>
-    dplyr::mutate(
-      timestamp = lubridate::floor_date(
-        timestamp,
-        unit = roll_by
-      )
-    ) |>
-    dplyr::summarize(
-      dplyr::across(everything(), \(x) mean(x, na.rm = TRUE) |> round(2)),
-      .by = c(timestamp, metric)
-    ) |>
-    knitr::kable()
-}
-
-table_rolling_metrics("temperature_f", 1)
-table_rolling_metrics("humidity_pct", 1)
-table_rolling_metrics("gas_ohms", 0)
-table_rolling_metrics("pressure_hpa", 0)
-```
-
-## Cycle Analysis
-```{r cycle_metrics}
-cycle_metrics <- readings |>
-  dplyr::mutate(
-    cycle_trend = ifelse(
-      dplyr::lag(temperature_f, default = Inf) > temperature_f,
-      "down",
-      "up"
-    ),
-    cycle_num = dplyr::consecutive_id(cycle_trend)
-  ) |>
-  dplyr::mutate(
-    cycle_duration = max(timestamp) - min(timestamp),
-    .by = cycle_num
-  ) |>
-  # collapse cycles shorter than 90s with the previous cycle
-dplyr::mutate(
-  cycle_num = ifelse(cycle_duration <= lubridate::seconds(90), NA, cycle_num) |>
-    vctrs::vec_fill_missing(direction = "down") |>
-    dplyr::consecutive_id(),
-  cycle_trend = ifelse(cycle_duration <= lubridate::seconds(90), NA, cycle_trend) |>
-    vctrs::vec_fill_missing(direction = "down")
-) |>
-  dplyr::mutate(
-    cycle_start_time = min(timestamp),
-    cycle_end_time = max(timestamp),
-    cycle_duration = max(timestamp) - min(timestamp),
-    .by = cycle_num
-  ) |>
-  dplyr::select(
-    cycle_num,
-    cycle_trend,
-    starts_with("cycle"),
-    temperature_f,
-    humidity_pct,
-    gas_ohms,
-    pressure_hpa
-  ) |>
-  tidyr::pivot_longer(
-    -starts_with("cycle"),
-    names_to = "metric",
-    values_to = "raw_value"
-  ) |>
-  dplyr::summarise(
-    .by = c(starts_with("cycle"), "metric"),
-    mean = mean(raw_value, na.rm = TRUE),
-    quantiles = quantile(
-      raw_value,
-      c(0.05, 0.20, 0.8, 0.95),
-      na.rm = TRUE
-    ) |>
-      round(2) |>
-      setNames(c("p05", "p20", "p80", "p95")) |>
-      as.list() |>
-      list()
-  ) |>
-  tidyr::unnest_wider(quantiles) |>
-  tidyr::pivot_wider(
-    names_from = metric,
-    values_from = c(mean, starts_with("p")),
-    names_glue = "{metric}_{.value}",
-    names_vary = "slowest"
-  )
-```
-
-```{r}
-table_cycle_metrics <- function(
-  metric_name,
-  n_digits = 2
-) {
-  cycle_metrics |>
-    dplyr::select(
-      starts_with("cycle"),
-      starts_with(metric_name)
-    ) |>
-    dplyr::mutate(
-      across(starts_with(metric_name), \(x) round(x, 2))
-    ) |>
-    dplyr::rename_all(\(x) gsub(paste0(metric_name, "_"), "", x)) |>
-    knitr::kable()
-}
-table_cycle_metrics("temperature_f", 1)
-table_cycle_metrics("humidity_pct", 1)
-table_cycle_metrics("gas_ohms", 0)
+```{r table_pressure}
 table_cycle_metrics("pressure_hpa", 0)
 ```
