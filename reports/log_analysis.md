@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-27 03:30:02.535447
+2026-07-27 03:45:02.775018
 
 ``` r
 knitr::opts_chunk$set(echo = FALSE, dev = "ragg_png")
@@ -27,7 +27,7 @@ here::i_am("reports/log_analysis.Rmd")
 
 ## dry age status
 
-Current dry-age duration: 13.6 days
+Current dry-age duration: 13.7 days
 
 Starting weight: 14.2 lbs
 
@@ -54,6 +54,14 @@ Target date: 2026-08-27 (45 days)
 
 ## Cycle Analysis
 
+    ## Warning: There were 2 warnings in `dplyr::mutate()`.
+    ## The first warning was:
+    ## ℹ In argument: `cycle_duration_up = -...`.
+    ## ℹ In group 400: `cycle_num = 399`.
+    ## Caused by warning in `max.default()`:
+    ## ! no non-missing arguments to max; returning -Inf
+    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
+
 ### Temperature
 
 ![](log_analysis_files/figure-gfm/plot_tempf-1.png)<!-- -->
@@ -65,6 +73,7 @@ table
 
 | cycle_start         |  mean |   p05 |   p20 |   p80 |   p95 | cycle_duration | cycle_duration_up | cycle_duration_down |
 |:--------------------|------:|------:|------:|------:|------:|---------------:|------------------:|--------------------:|
+| 2026-07-26 22:37:15 | 37.45 | 30.08 | 33.39 | 41.02 | 41.63 |       1H 4M 0S |           45M 30S |              18M 0S |
 | 2026-07-26 21:29:45 | 37.60 | 30.13 | 33.71 | 41.08 | 41.67 |       1H 7M 0S |           48M 30S |              18M 0S |
 | 2026-07-26 20:23:02 | 37.38 | 29.86 | 33.25 | 41.01 | 41.60 |      1H 6M 13S |           47M 13S |             18M 30S |
 | 2026-07-26 19:17:32 | 37.31 | 29.81 | 33.21 | 40.98 | 41.60 |       1H 5M 0S |            46M 0S |             18M 30S |
@@ -477,6 +486,7 @@ table
 
 | cycle_start         |  mean |   p05 |   p20 |   p80 |   p95 | cycle_duration | cycle_duration_up | cycle_duration_down |
 |:--------------------|------:|------:|------:|------:|------:|---------------:|------------------:|--------------------:|
+| 2026-07-26 22:37:15 |  92.3 |  58.4 |  74.9 | 103.3 | 103.4 |       1H 4M 0S |           45M 30S |              18M 0S |
 | 2026-07-26 21:29:45 |  92.9 |  58.5 |  77.8 | 103.3 | 103.5 |       1H 7M 0S |           48M 30S |              18M 0S |
 | 2026-07-26 20:23:02 |  91.9 |  57.3 |  73.0 | 103.3 | 103.4 |      1H 6M 13S |           47M 13S |             18M 30S |
 | 2026-07-26 19:17:32 |  91.7 |  57.3 |  72.4 | 103.2 | 103.4 |       1H 5M 0S |            46M 0S |             18M 30S |
@@ -888,6 +898,7 @@ table
 
 | cycle_start         |  mean |   p05 |   p20 |   p80 |   p95 | cycle_duration | cycle_duration_up | cycle_duration_down |
 |:--------------------|------:|------:|------:|------:|------:|---------------:|------------------:|--------------------:|
+| 2026-07-26 22:37:15 | 28667 | 25400 | 25600 | 32080 | 40840 |       1H 4M 0S |           45M 30S |              18M 0S |
 | 2026-07-26 21:29:45 | 28355 | 25300 | 25500 | 31040 | 40290 |       1H 7M 0S |           48M 30S |              18M 0S |
 | 2026-07-26 20:23:02 | 28537 | 25200 | 25300 | 32240 | 40980 |      1H 6M 13S |           47M 13S |             18M 30S |
 | 2026-07-26 19:17:32 | 28492 | 25100 | 25200 | 32400 | 40800 |       1H 5M 0S |            46M 0S |             18M 30S |
@@ -1300,6 +1311,7 @@ table
 
 | cycle_start         | mean |  p05 |  p20 |  p80 |  p95 | cycle_duration | cycle_duration_up | cycle_duration_down |
 |:--------------------|-----:|-----:|-----:|-----:|-----:|---------------:|------------------:|--------------------:|
+| 2026-07-26 22:37:15 | 1011 | 1011 | 1011 | 1011 | 1011 |       1H 4M 0S |           45M 30S |              18M 0S |
 | 2026-07-26 21:29:45 | 1011 | 1011 | 1011 | 1012 | 1012 |       1H 7M 0S |           48M 30S |              18M 0S |
 | 2026-07-26 20:23:02 | 1011 | 1011 | 1011 | 1011 | 1011 |      1H 6M 13S |           47M 13S |             18M 30S |
 | 2026-07-26 19:17:32 | 1011 | 1011 | 1011 | 1011 | 1011 |       1H 5M 0S |            46M 0S |             18M 30S |
