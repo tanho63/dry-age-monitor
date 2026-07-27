@@ -342,7 +342,7 @@ plot_cycle_metric(
   metric_units = "degrees F",
   # metric_limits = c(NA, 48),
   metric_reference_lines = data.frame(
-    y = c(32, 34, 38, 40),
+    y = c(30, 34, 38, 40),
     label = c("freezing", "lower", "upper", "danger")
   ),
   timestamp_reference_lines = events
