@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-27 16:15:03.331252
+2026-07-27 16:30:03.040706
 
 ``` r
 knitr::opts_chunk$set(echo = FALSE, dev = "ragg_png")
