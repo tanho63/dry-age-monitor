@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-07-31 20:15:03.438286
+2026-07-31 20:30:02.720134
 
 ``` r
 knitr::opts_chunk$set(echo = FALSE, dev = "ragg_png")
@@ -27,7 +27,7 @@ here::i_am("reports/log_analysis.Rmd")
 
 ## dry age status
 
-Current dry-age duration: 18.3 days
+Current dry-age duration: 18.4 days
 
 Starting weight: 14.2 lbs
 
@@ -53,14 +53,6 @@ Target date: 2026-08-27 (45 days)
 | 2026-07-22 15:00:00 | mess with fridge sensor               |
 
 ## Cycle Analysis
-
-    ## Warning: There were 2 warnings in `dplyr::mutate()`.
-    ## The first warning was:
-    ## ℹ In argument: `cycle_duration_up = -...`.
-    ## ℹ In group 524: `cycle_num = 523`.
-    ## Caused by warning in `max.default()`:
-    ## ! no non-missing arguments to max; returning -Inf
-    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
 
 ### Temperature
 
