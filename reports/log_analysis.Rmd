@@ -309,12 +309,13 @@ table_cycle_metrics <- function(metric_name, n_digits) {
     dplyr::mutate(
       cycle_start = lubridate::with_tz(cycle_start_time, "America/Toronto"),
       duration = lubridate::seconds_to_period(round(cycle_duration)),
-      duration_up = lubridate::seconds_to_period(round(
-        cycle_duration_up
-      )),
-      duration_down = lubridate::seconds_to_period(round(
-        cycle_duration_down
-      ))
+      duration_up = lubridate::seconds_to_period(
+        round(cycle_duration_up)
+        ),
+      duration_down = lubridate::seconds_to_period(
+        round(cycle_duration_down)
+        ),
+      range = p95-p05
     ) |>
     dplyr::select(
       cycle_start,
@@ -323,6 +324,7 @@ table_cycle_metrics <- function(metric_name, n_digits) {
       p20,
       p80,
       p95,
+      range,
       duration,
       duration_up,
       duration_down,
