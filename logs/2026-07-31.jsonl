@@ -1858,3 +1858,5 @@
 {"timestamp": "2026-07-31T15:29:39", "temperature_c": 4.82, "temperature_f": 40.68, "humidity_pct": 93.23, "pressure_hpa": 1016.16, "gas_ohms": 39000}
 {"timestamp": "2026-07-31T15:30:09", "temperature_c": 4.62, "temperature_f": 40.32, "humidity_pct": 90.23, "pressure_hpa": 1016.16, "gas_ohms": 40900}
 {"timestamp": "2026-07-31T15:30:39", "temperature_c": 4.37, "temperature_f": 39.87, "humidity_pct": 88.25, "pressure_hpa": 1016.15, "gas_ohms": 42400}
+{"timestamp": "2026-07-31T15:31:09", "temperature_c": 4.09, "temperature_f": 39.36, "humidity_pct": 87.15, "pressure_hpa": 1016.15, "gas_ohms": 43900}
+{"timestamp": "2026-07-31T15:31:39", "temperature_c": 3.8, "temperature_f": 38.84, "humidity_pct": 85.61, "pressure_hpa": 1016.15, "gas_ohms": 45600}
