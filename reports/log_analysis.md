@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-08-02 17:45:02.605115
+2026-08-02 18:00:03.202122
 
 ``` r
 knitr::opts_chunk$set(echo = FALSE, dev = "ragg_png")
@@ -27,7 +27,7 @@ here::i_am("reports/log_analysis.Rmd")
 
 ## dry age status
 
-Current dry-age duration: 20.2 days
+Current dry-age duration: 20.3 days
 
 Starting weight: 14.2 lbs
 
