@@ -1,6 +1,6 @@
 Dry Age Monitor - Log Analysis
 ================
-2026-08-05 03:15:03.641516
+2026-08-05 03:30:02.619478
 
 ``` r
 knitr::opts_chunk$set(echo = FALSE, dev = "ragg_png")
@@ -53,14 +53,6 @@ Target date: 2026-08-27 (45 days)
 | 2026-07-22 15:00:00 | mess with fridge sensor               |
 
 ## Cycle Analysis
-
-    ## Warning: There were 2 warnings in `dplyr::mutate()`.
-    ## The first warning was:
-    ## ℹ In argument: `cycle_duration_up = -...`.
-    ## ℹ In group 632: `cycle_num = 631`.
-    ## Caused by warning in `max.default()`:
-    ## ! no non-missing arguments to max; returning -Inf
-    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
 
 ### Temperature
 
