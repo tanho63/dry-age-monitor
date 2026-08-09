@@ -18,6 +18,8 @@ docker run \
   "$IMAGE" \
   -e "rmarkdown::render('/dry-age-monitor/reports/log_analysis.Rmd', output_format = 'all')"
 
-git add reports logs
-git commit -m "automated report update $(date)"
+rclone copyto $DIR/reports/log_analysis.html sunlake-r2:sunlake/dry-age-monitor.html
+
+git add logs
+git commit -m "logs update $(date)"
 git push
