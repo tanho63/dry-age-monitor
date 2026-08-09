@@ -16,9 +16,9 @@ docker run \
   -v "$DIR":/dry-age-monitor \
   --entrypoint R \
   "$IMAGE" \
-  -e "rmarkdown::render('/dry-age-monitor/reports/log_analysis.Rmd', output_format = 'all')"
+  -e "rmarkdown::render('/dry-age-monitor/reports/log_analysis.Rmd', output_format = 'html_document')"
 
-rclone copyto $DIR/reports/log_analysis.html sunlake-r2:sunlake/dry-age-monitor.html
+rclone copyto $DIR/reports/log_analysis.html sunlake-r2:sunlake/dry-age-monitor.html --s3-no-head
 
 git add logs
 git commit -m "logs update $(date)"
