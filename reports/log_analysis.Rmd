@@ -1,6 +1,6 @@
 ---
 title: "Dry Age Monitor - Log Analysis"
-date: "`r lubridate::now('America/Toronto')`"
+date: "`r format(lubridate::now('America/Toronto'), '%c')`"
 output:
   github_document:
     dev: ragg_png
