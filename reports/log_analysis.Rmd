@@ -1,6 +1,6 @@
 ---
 title: "Dry Age Monitor - Log Analysis"
-date: "`r Sys.time()`"
+date: "`r lubridate::now('America/Toronto')`"
 output:
   github_document:
     dev: ragg_png
@@ -11,8 +11,9 @@ output:
     dev: ragg_png
     fig_width: 12
     fig_height: 8
+    toc: yes
 ---
-```{r setup}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, dev = "ragg_png")
 suppressPackageStartupMessages({
   library(jsonlite)
@@ -98,8 +99,8 @@ readings <- list.files(path = here::here("logs"), full.names = TRUE) |>
     temperature_f = c_to_f(temperature_c) |> round(2)
   )
 ```
-## Cycle Analysis
-```{r cycle_metrics}
+## cycle analysis
+```{r cycle_metrics, warning = FALSE}
 cycle_metrics <- readings |>
   dplyr::mutate(
     cycle_trend = ifelse(
@@ -334,7 +335,7 @@ table_cycle_metrics <- function(metric_name, n_digits) {
     knitr::kable()
 }
 ```
-### Temperature
+### temperature
 
 ```{r plot_tempf}
 plot_cycle_metric(
@@ -360,7 +361,7 @@ table_cycle_metrics("temperature_f", n_digits = 2)
 ```
 </details>
 
-### Relative Humidity
+### relative humidity
 
 ```{r plot_humidity}
 plot_cycle_metric(
@@ -386,7 +387,7 @@ table_cycle_metrics("humidity_pct", 1)
 ```
 </details>
 
-### Gas
+### gas
 
 ```{r plot_gas}
 plot_cycle_metric(
@@ -408,7 +409,7 @@ table_cycle_metrics("gas_ohms", 0)
 ```
 </details>
 
-### Pressure
+### pressure
 
 ```{r plot_pressure}
 plot_cycle_metric(
