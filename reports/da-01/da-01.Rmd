@@ -1,6 +1,6 @@
 ---
 title: "Dry Age Monitor - Log Analysis"
-date: "`r format(lubridate::now('America/Toronto'), '%c')`"
+date: "2026-08-27 03:00:03 PM EDT"
 output:
   html_document:
     self_contained: true
@@ -32,7 +32,7 @@ here::i_am("reports/log_analysis.Rmd")
 ```{r parameters, echo = FALSE}
 roll_minutes <- 60
 start_date <- lubridate::as_datetime("2026-07-13 21:00:00 UTC")
-end_date <- Sys.time()
+end_date <- lubridate::as_datetime("2026-08-27 19:00:00 UTC")
 events <- tibble::tribble(
   ~timestamp                                        , ~label                                  ,
   lubridate::as_datetime("2026-07-13 22:00:00 UTC") , "ribeye added to fridge"                ,
@@ -87,6 +87,7 @@ f_to_c <- function(temp_f) (temp_f - 32) * 5/9
 ```
 
 ```{r parse}
+
 readings <- list.files(path = here::here("logs"), full.names = TRUE) |>
   lapply(yyjsonr::read_ndjson_file) |>
   tibble::tibble() |>

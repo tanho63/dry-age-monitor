@@ -7,8 +7,8 @@ IMAGE=damr:latest
 DIR="/home/tan/dry-age-monitor"
 set -euxo pipefail
 
-# copy data from relicanth to S3
-rclone sync relicanth:$DIR/logs sunlake-r2:sunlake/dry-age-monitor/logs --s3-no-head
+# sync data from S3 to local dir for report
+rclone sync sunlake-r2:sunlake/dry-age-monitor/logs $DIR/logs --s3-no-head
 
 cd $DIR
 git pull
@@ -17,6 +17,6 @@ docker run \
   -v "$DIR":/dry-age-monitor \
   --entrypoint R \
   "$IMAGE" \
-  -e "rmarkdown::render('/dry-age-monitor/reports/log_analysis.Rmd', output_format = 'html_document')"
+  -e "rmarkdown::render('/dry-age-monitor/reports/da-02/da-02.Rmd', output_format = 'html_document')"
 
-rclone copyto $DIR/reports/log_analysis.html sunlake-r2:sunlake/dry-age-monitor/index.html --s3-no-head
+rclone copyto $DIR/reports/da-02/da-02.html sunlake-r2:sunlake/dry-age-monitor/da-02.html --s3-no-head
