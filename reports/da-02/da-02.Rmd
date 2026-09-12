@@ -1,5 +1,5 @@
 ---
-title: "Dry Age Monitor - Log Analysis"
+title: "Dry Age 02 - Monitoring"
 date: "`r format(lubridate::now('America/Toronto'), '%c')`"
 output:
   html_document:
@@ -27,7 +27,7 @@ suppressPackageStartupMessages({
   library(tantastic)
   library(here)
 })
-here::i_am("reports/log_analysis.Rmd")
+here::i_am("reports/da-02/da-02.Rmd")
 ```
 ```{r parameters, echo = FALSE}
 roll_minutes <- 60
