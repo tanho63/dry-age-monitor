@@ -1,5 +1,5 @@
 [Unit]
-Description=BME690 dry-aging fridge logger
+Description=Upload monitor data to S3 via rclone
 After=multi-user.target
 Wants=multi-user.target
 
@@ -8,7 +8,7 @@ Type=simple
 User=tan
 SupplementaryGroups=i2c
 WorkingDirectory=/home/tan/dry-age-monitor
-ExecStart=/home/tan/dry-age-monitor/monitor/.venv/bin/python /home/tan/dry-age-monitor/monitor/main.py
+ExecStart=/home/tan/dry-age-monitor/monitor/upload_s3.sh
 Restart=always
 RestartSec=10
 StandardOutput=journal
