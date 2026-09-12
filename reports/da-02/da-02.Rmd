@@ -35,7 +35,7 @@ start_date <- lubridate::as_datetime("2026-09-12 04:00:00 UTC")
 end_date <- lubridate::now()
 events <- tibble::tribble(
   ~timestamp                                        , ~label                 ,
-  lubridate::as_datetime("2026-09-12 04:00:00 UTC") , "meat added to fridge" ,
+  lubridate::as_datetime("2026-09-12 03:00:00 UTC") , "meat added to fridge" ,
 )
 ```
 
@@ -78,11 +78,11 @@ readings <- list.files(path = here::here("logs"), full.names = TRUE) |>
   lapply(yyjsonr::read_ndjson_file) |>
   tibble::tibble() |>
   tidyr::unnest(1) |>
-  dplyr::filter(timestamp >= start_date & timestamp <= end_date) |>
   dplyr::mutate(
     timestamp = lubridate::as_datetime(timestamp),
     temperature_f = c_to_f(temperature_c) |> round(2)
-  )
+  ) |>
+  dplyr::filter(timestamp >= start_date & timestamp <= end_date)
 ```
 ## cycle analysis
 ```{r cycle_metrics, warning = FALSE}
