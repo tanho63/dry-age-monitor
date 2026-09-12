@@ -70,6 +70,7 @@ events |>
 }
 c_to_f <- function(temp_c) (temp_c * 9/5) + 32
 f_to_c <- function(temp_f) (temp_f - 32) * 5/9
+set_difftime_unit <- function(x, unit) {units(x) <- unit; return(x)}
 ```
 
 ```{r parse}
@@ -106,7 +107,7 @@ cycle_metrics <- readings |>
       NA,
       cycle_trend
     ) |>
-      vctrs::vec_fill_missing(direction = "downup"),
+      vctrs::vec_fill_missing(direction = "down"),
   ) |>
   dplyr::mutate(
     cycle_num = cumsum(
@@ -124,6 +125,14 @@ cycle_metrics <- readings |>
     cycle_start_time = min(timestamp),
     cycle_trend = NULL,
     .by = cycle_num
+  ) |>
+  dplyr::mutate(
+    dplyr::across(
+      starts_with("cycle_duration"),
+      \(x) {
+        set_difftime_unit(x, "secs")
+      }
+    )
   ) |>
   dplyr::select(
     cycle_num,
@@ -223,7 +232,7 @@ plot_cycle_metric <- function(
             formula = y ~ x,
             alpha = 1,
             linewidth = 1.5,
-            span = 0.1,
+            # span = 0.1,
             hjust = 0.5,
             textcolor = "white",
             se = F
@@ -296,12 +305,8 @@ table_cycle_metrics <- function(metric_name, n_digits) {
     dplyr::mutate(
       cycle_start = lubridate::with_tz(cycle_start_time, "America/Toronto"),
       duration = lubridate::seconds_to_period(round(cycle_duration)),
-      duration_up = lubridate::seconds_to_period(
-        round(cycle_duration_up)
-        ),
-      duration_down = lubridate::seconds_to_period(
-        round(cycle_duration_down)
-        ),
+      duration_up = lubridate::seconds_to_period(round(cycle_duration_up)),
+      duration_down = lubridate::seconds_to_period(round(cycle_duration_down)),
       range = p95-p05
     ) |>
     dplyr::select(
