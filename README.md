@@ -71,13 +71,13 @@ A project monitoring a home dry aging fridge setup.
 - Run `uv sync` in the folder to install dependencies.
 - Run `uv run test.py` to make sure the sensor + library are working.
 - Configure variables in main.py and make sure it corresponds to locations in dry-age-monitor.service
-- Copy dry-age-monitor.service to systemd and enable it:
+- Copy da-monitor.service to systemd and enable it:
     ```
-    sudo cp dry-age-monitor.service /etc/systemd/system/
+    sudo ln -s /home/tan/dry-age-monitor/monitor/da-monitor.service /etc/systemd/system/da-monitor.service
     sudo systemctl daemon-reload
-    sudo systemctl enable --now dry-age-monitor.service
-    systemctl status dry-age-monitor.service
-    journalctl -u dry-age-monitor.service -f
+    sudo systemctl enable --now da-monitor.service
+    sudo systemctl status da-monitor.service
+    sudo journalctl -u da-monitor.service -f
     ```
 
 ### report
