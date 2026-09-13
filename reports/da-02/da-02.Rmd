@@ -29,18 +29,6 @@ suppressPackageStartupMessages({
 })
 here::i_am("reports/da-02/da-02.Rmd")
 ```
-```{r parameters, echo = FALSE}
-roll_minutes <- 60
-start_date <- lubridate::as_datetime("2026-09-12 04:15:00 UTC")
-end_date <- lubridate::now("UTC")
-target_date <- lubridate::as_datetime("2026-11-03 20:00:00 UTC")
-events <- tibble::tribble(
-  ~timestamp                                        , ~label                 ,
-  lubridate::as_datetime("2026-09-11 20:00:00 UTC") , "meat added to fridge" ,
-)
-current_duration <- round(end_date - start_date, 1) |> set_difftime_unit("days")
-target_duration <- set_difftime_unit(target_date - start_date, "days") |> round()
-```
 ```{r utils}
 .dew_point <- function(temp_c, rh_pct) {
   stopifnot(length(temp_c) == length(rh_pct))
@@ -55,6 +43,19 @@ c_to_f <- function(temp_c) (temp_c * 9/5) + 32
 f_to_c <- function(temp_f) (temp_f - 32) * 5/9
 set_difftime_unit <- function(x, unit) {units(x) <- unit; return(x)}
 ```
+```{r parameters, echo = FALSE}
+roll_minutes <- 60
+start_date <- lubridate::as_datetime("2026-09-12 04:15:00 UTC")
+end_date <- lubridate::now("UTC")
+target_date <- lubridate::as_datetime("2026-11-03 20:00:00 UTC")
+events <- tibble::tribble(
+  ~timestamp                                        , ~label                 ,
+  lubridate::as_datetime("2026-09-11 20:00:00 UTC") , "meat added to fridge" ,
+)
+current_duration <- round(end_date - start_date, 1) |> set_difftime_unit("days")
+target_duration <- set_difftime_unit(target_date - start_date, "days") |> round()
+```
+
 ## dry age status
 
 Current dry-age duration: `r set_difftime_unit(round(end_date - start_date, 1), "days")` days
