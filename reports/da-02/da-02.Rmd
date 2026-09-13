@@ -44,13 +44,13 @@ f_to_c <- function(temp_f) (temp_f - 32) * 5/9
 set_difftime_unit <- function(x, unit) {units(x) <- unit; return(x)}
 ```
 ```{css, echo = FALSE}
-@import 'https://fonts.googleapis.com/css?family=Bai+Jamjuree:400,700|family=IBM+Plex+Mono:400,700|family=IBM+Plex+Sans+Condensed:400,700';
+@import 'https://fonts.googleapis.com/css?family=Bai+Jamjuree:400,700|family=IBM+Plex+Sans+Condensed:400,700';
 
 body {
-  font-family: 'IBM Plex Sans Condensed', sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 
-h1,h2 {
+h1,h2,h3 {
   font-family: 'Bai Jamjuree', sans-serif;
 }
 ```
@@ -86,9 +86,6 @@ events |>
   ) |>
   knitr::kable()
 ```
-
-## cycle analysis
-
 ```{r parse}
 readings <- tibble::tibble(
   file_name = list.files(path = here::here("logs"), full.names = TRUE)
@@ -116,7 +113,6 @@ readings <- tibble::tibble(
   ) |>
   dplyr::filter(timestamp >= start_date & timestamp <= end_date)
 ```
-
 ```{r cycle_metrics, warning = FALSE}
 cycle_metrics <- readings |>
   dplyr::mutate(
@@ -209,7 +205,6 @@ cycle_metrics <- readings |>
     value = round(value, 3)
   )
 ```
-
 ```{r plot_fn}
 plot_cycle_metric <- function(
   metric_name,
@@ -356,7 +351,7 @@ table_cycle_metrics <- function(metric_name, n_digits) {
     knitr::kable()
 }
 ```
-### temperature
+## cycle analysis: temperature
 
 ```{r plot_tempf}
 plot_cycle_metric(
@@ -382,7 +377,7 @@ table_cycle_metrics("temperature_f", n_digits = 2)
 ```
 </details>
 
-### relative humidity
+## cycle analysis: relative humidity
 
 ```{r plot_humidity}
 plot_cycle_metric(
