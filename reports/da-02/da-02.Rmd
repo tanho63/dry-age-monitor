@@ -58,7 +58,7 @@ h1,h2,h3 {
 roll_minutes <- 60
 start_date <- lubridate::as_datetime("2026-09-12 04:15:00 UTC")
 end_date <- lubridate::now("UTC")
-target_date <- lubridate::as_datetime("2026-11-03 20:00:00 UTC")
+target_date <- lubridate::as_datetime("2026-11-02 20:00:00 UTC")
 events <- tibble::tribble(
   ~timestamp                                        , ~label                 ,
   lubridate::as_datetime("2026-09-11 20:00:00 UTC") , "meat added to fridge" ,
