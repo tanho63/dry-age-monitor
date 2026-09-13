@@ -38,10 +38,23 @@ events <- tibble::tribble(
   lubridate::as_datetime("2026-09-11 20:00:00 UTC") , "meat added to fridge" ,
 )
 ```
+```{r utils}
+.dew_point <- function(temp_c, rh_pct) {
+  stopifnot(length(temp_c) == length(rh_pct))
+  a <- 17.625
+  b <- 243.04
 
+  x <- ((a * temp_c) / (b + temp_c)) + log(rh_pct / 100)
+
+  return((b * x) / (a - x))
+}
+c_to_f <- function(temp_c) (temp_c * 9/5) + 32
+f_to_c <- function(temp_f) (temp_f - 32) * 5/9
+set_difftime_unit <- function(x, unit) {units(x) <- unit; return(x)}
+```
 ## dry age status
 
-Current dry-age duration: `r round(end_date - start_date, 1)` days
+Current dry-age duration: `r set_difftime_unit(round(end_date - start_date, 1), "days")` days
 
 Starting weight: 34.2 lbs
 
@@ -58,34 +71,37 @@ events |>
   ) |>
   knitr::kable()
 ```
-```{r utils}
-.dew_point <- function(temp_c, rh_pct) {
-  stopifnot(length(temp_c) == length(rh_pct))
-  a <- 17.625
-  b <- 243.04
 
-  x <- ((a * temp_c) / (b + temp_c)) + log(rh_pct / 100)
-
-  return((b * x) / (a - x))
-}
-c_to_f <- function(temp_c) (temp_c * 9/5) + 32
-f_to_c <- function(temp_f) (temp_f - 32) * 5/9
-set_difftime_unit <- function(x, unit) {units(x) <- unit; return(x)}
-```
+## cycle analysis
 
 ```{r parse}
-
-readings <- list.files(path = here::here("logs"), full.names = TRUE) |>
-  lapply(yyjsonr::read_ndjson_file) |>
+readings <- tibble::tibble(
+  file_name = list.files(path = here::here("logs"), full.names = TRUE)
+) |>
+  dplyr::mutate(
+    file_date = gsub(
+      x = file_name,
+      pattern = ".*/logs/(.+).jsonl$",
+      replacement = "\\1"
+    ) |>
+      lubridate::as_date()
+  ) |>
+  dplyr::filter(
+    file_date >= lubridate::as_date(start_date) &
+      file_date <= lubridate::as_date(end_date)
+  ) |>
+  el("file_name") |>
+  lapply(yyjsonr::read_ndjson_file, type = "list") |>
   tibble::tibble() |>
-  tidyr::unnest(1) |>
+  tidyr::unnest_longer(1) |>
+  tidyr::unnest_wider(1) |>
   dplyr::mutate(
     timestamp = lubridate::as_datetime(timestamp, tz = "UTC"),
     temperature_f = c_to_f(temperature_c) |> round(2)
   ) |>
   dplyr::filter(timestamp >= start_date & timestamp <= end_date)
 ```
-## cycle analysis
+
 ```{r cycle_metrics, warning = FALSE}
 cycle_metrics <- readings |>
   dplyr::mutate(
@@ -374,52 +390,5 @@ plot_cycle_metric(
 
 ```{r table_humidity}
 table_cycle_metrics("humidity_pct", 1)
-```
-</details>
-
-### gas
-
-```{r plot_gas}
-plot_cycle_metric(
-  metric_name = "gas_ohms",
-  cycle_metrics = cycle_metrics,
-  plot_title = "Gas Resistance",
-  plot_subtitle = "Higher values indicate cleaner air = less offgassing",
-  metric_units = "Ohms",
-  timestamp_limits = NULL,
-  timestamp_reference_lines = events,
-  metric_limits = NULL,
-  metric_breaks_width = 1000,
-  metric_reference_lines = NULL
-)
-```
-<details><summary>table</summary>
-```{r table_gas}
-table_cycle_metrics("gas_ohms", 0)
-```
-</details>
-
-### pressure
-
-```{r plot_pressure}
-plot_cycle_metric(
-  metric_name = "pressure_hpa",
-  cycle_metrics = cycle_metrics,
-  plot_title = "Air Pressure",
-  plot_subtitle = "apparently just a weather thing? who knows.",
-  metric_units = "hPa",
-  timestamp_limits = NULL,
-  timestamp_reference_lines = events,
-  metric_breaks_width = 100,
-  metric_limits = NULL,
-  metric_reference_lines = NULL,
-  metric_types = "mean"
-)
-```
-
-<details><summary>table</summary>
-
-```{r table_pressure}
-table_cycle_metrics("pressure_hpa", 0)
 ```
 </details>
