@@ -33,10 +33,13 @@ here::i_am("reports/da-02/da-02.Rmd")
 roll_minutes <- 60
 start_date <- lubridate::as_datetime("2026-09-12 04:15:00 UTC")
 end_date <- lubridate::now("UTC")
+target_date <- lubridate::as_datetime("2026-11-03 20:00:00 UTC")
 events <- tibble::tribble(
   ~timestamp                                        , ~label                 ,
   lubridate::as_datetime("2026-09-11 20:00:00 UTC") , "meat added to fridge" ,
 )
+current_duration <- round(end_date - start_date, 1) |> set_difftime_unit("days")
+target_duration <- set_difftime_unit(target_date - start_date, "days") |> round()
 ```
 ```{r utils}
 .dew_point <- function(temp_c, rh_pct) {
@@ -60,7 +63,7 @@ Starting weight: 34.2 lbs
 
 Start date: `r format(start_date, "%Y-%m-%d")`
 
-Target date: `r format(start_date + lubridate::days(52), "%Y-%m-%d")` (52 days)
+Target date: `r format(target_date, "%Y-%m-%d")` (`r target_duration` days)
 
 ## event timeline
 ```{r event_timeline}
