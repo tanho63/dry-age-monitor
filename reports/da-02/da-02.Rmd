@@ -1,6 +1,6 @@
 ---
-title: "Dry Age 02 - Monitoring"
-date: "`r format(lubridate::now('America/Toronto'), '%c')`"
+title: "dry age 02 - monitoring page"
+date: "`r tolower(format(lubridate::now('America/Toronto'), '%c'))`"
 output:
   html_document:
     self_contained: true
