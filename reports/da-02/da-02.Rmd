@@ -43,6 +43,17 @@ c_to_f <- function(temp_c) (temp_c * 9/5) + 32
 f_to_c <- function(temp_f) (temp_f - 32) * 5/9
 set_difftime_unit <- function(x, unit) {units(x) <- unit; return(x)}
 ```
+```{css, echo = FALSE}
+@import 'https://fonts.googleapis.com/css?family=Bai+Jamjuree:400,700|family=IBM+Plex+Mono:400,700|family=IBM+Plex+Sans:400,700';
+
+body{
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+h1,h2,h3 {
+  font-family: 'Bai Jamjuree', sans-serif;
+}
+```
 ```{r parameters, echo = FALSE}
 roll_minutes <- 60
 start_date <- lubridate::as_datetime("2026-09-12 04:15:00 UTC")
