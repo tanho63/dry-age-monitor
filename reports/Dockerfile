@@ -6,8 +6,13 @@ WORKDIR /dry-age-monitor
 ENV PKG_SYSREQS=TRUE
 ENV R_PKG_SYSREQS2=TRUE
 
-RUN install2.r -e pak
-
+RUN install2.r -e pak && mkdir -p /usr/share/fonts/tantastic
 
 COPY DESCRIPTION .
-RUN R -e "pak::local_install_deps('./DESCRIPTION')"
+RUN R -e "\
+  pak::local_install_deps('./DESCRIPTION');\
+  file.copy( \
+    system.file('fonts', package = 'tantastic'),\
+    '/usr/share/fonts/tantastic',\
+    recursive = TRUE\
+  );" && fc-cache -fv
