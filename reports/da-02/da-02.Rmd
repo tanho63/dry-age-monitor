@@ -351,7 +351,7 @@ table_cycle_metrics <- function(metric_name, n_digits) {
     knitr::kable()
 }
 ```
-## cycle analysis: temperature
+## temperature
 
 ```{r plot_tempf}
 plot_cycle_metric(
@@ -377,7 +377,7 @@ table_cycle_metrics("temperature_f", n_digits = 2)
 ```
 </details>
 
-## cycle analysis: relative humidity
+## relative humidity
 
 ```{r plot_humidity}
 plot_cycle_metric(
