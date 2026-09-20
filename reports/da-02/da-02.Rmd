@@ -1,5 +1,5 @@
 ---
-title: "dry age 02 - monitoring page"
+title: "Dry Age 02 - Monitoring Page"
 date: "`r tolower(format(lubridate::now('America/Toronto'), '%c'))`"
 output:
   html_document:
