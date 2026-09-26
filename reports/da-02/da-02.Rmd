@@ -305,7 +305,8 @@ plot_cycle_metric <- function(
 }
 ```
 ```{r table_fn}
-table_cycle_metrics <- function(metric_name, n_digits) {
+table_cycle_metrics <- function(metric_name, n_digits, filter_to = c("all", "recent", "historical")) {
+  filter_to <- match.arg(filter_to)
   cycle_metrics |>
     dplyr::filter(
       metric == metric_name,
@@ -348,6 +349,12 @@ table_cycle_metrics <- function(metric_name, n_digits) {
       duration_down,
     ) |>
     dplyr::arrange(desc(cycle_start)) |>
+    (\(df) switch(
+      filter_to,
+      recent = head(df, 10),
+      historical = tail(df, max(nrow(df) - 10, 0)),
+      all = df
+    ))() |>
     knitr::kable()
 }
 ```
@@ -370,10 +377,14 @@ plot_cycle_metric(
 
 ```
 
-<details><summary>table</summary>
-
 ```{r table_temp}
-table_cycle_metrics("temperature_f", n_digits = 2)
+table_cycle_metrics("temperature_f", n_digits = 2, filter_to = "recent")
+```
+
+<details><summary>more temperature cycles</summary>
+
+```{r table_temp_historical}
+table_cycle_metrics("temperature_f", n_digits = 2, filter_to = "historical")
 ```
 </details>
 
@@ -396,9 +407,15 @@ plot_cycle_metric(
 )
 ```
 
-<details><summary>table</summary>
-
 ```{r table_humidity}
-table_cycle_metrics("humidity_pct", 1)
+table_cycle_metrics("humidity_pct", 1, filter_to = "recent")
+```
+
+<details><summary>more humidity cycles</summary>
+
+```{r table_humidity_historical}
+table_cycle_metrics("humidity_pct", 1, filter_to = "historical")
 ```
 </details>
+
+<br>
