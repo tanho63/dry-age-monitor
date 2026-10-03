@@ -10,6 +10,8 @@ Depends:
     R (>= 4.5.0)
 Imports:
     yyjsonr,
+    jsonlite,
+    httr,
     dplyr,
     tidyr,
     purrr,
