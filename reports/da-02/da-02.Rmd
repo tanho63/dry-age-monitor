@@ -358,6 +358,47 @@ table_cycle_metrics <- function(metric_name, n_digits, filter_to = c("all", "rec
     knitr::kable()
 }
 ```
+```{r healthcheck_fn}
+check_cycle_metrics <- function(
+  cycle_metrics,
+  metric_warn_thresholds = tibble::tribble(
+    ~metric_name    , ~metric_type , ~operator , ~threshold ,
+    "temperature_f" , "mean"       , ">="      ,         38 ,
+    "temperature_f" , "mean"       , "<="      ,         34 ,
+    "temperature_f" , "p80"        , ">="      ,         41 ,
+    "temperature_f" , "p95"        , ">="      ,         42 ,
+    "temperature_f" , "p20"        , "<="      ,         30 ,
+    "humidity_pct"  , "mean"       , "<="      ,         75 ,
+    "humidity_pct"  , "mean"       , ">="      ,         90 ,
+  )
+) {
+  cycle_metrics |>
+    dplyr::filter(
+      metric %in% metric_warn_thresholds$metric,
+      metric_type %in% metric_warn_thresholds$metric_type,
+      cycle_num != max(cycle_num)
+    ) |>
+    dplyr::arrange(metric_type) |>
+    dplyr::arrange(desc(cycle_num)) |>
+    dplyr::slice(1:3, .by = c("metric", "metric_type")) |>
+    dplyr::inner_join(
+      metric_warn_thresholds,
+      by = c("metric", "metric_type"),
+      relationship = "many-to-many"
+    ) |>
+    dplyr::mutate(
+      warn = dplyr::case_when(
+        operator == ">=" ~ value >= threshold,
+        operator == "<=" ~ value <= threshold
+      )
+    ) |>
+    dplyr::summarize(
+      value = mean(value),
+      warn_count = sum(as.numeric(warn)),
+      .by = c("metric", "metric_type", "operator", "threshold")
+    )
+}
+```
 ## temperature
 
 ```{r plot_tempf}
@@ -419,3 +460,38 @@ table_cycle_metrics("humidity_pct", 1, filter_to = "historical")
 </details>
 
 <br>
+
+## healthcheck
+```{r healthcheck}
+all_checks <- check_cycle_metrics(
+  cycle_metrics = cycle_metrics,
+  metric_warn_thresholds = tibble::tribble(
+    ~metric         , ~metric_type , ~operator , ~threshold ,
+    "temperature_f" , "mean"       , ">="      ,         38 ,
+    "temperature_f" , "mean"       , "<="      ,         34 ,
+    "temperature_f" , "p80"        , ">="      ,         41 ,
+    "temperature_f" , "p95"        , ">="      ,         42 ,
+    "temperature_f" , "p20"        , "<="      ,         30 ,
+    "humidity_pct"  , "mean"       , "<="      ,         75 ,
+    "humidity_pct"  , "mean"       , ">="      ,         90 ,
+  )
+)
+
+if (sum(all_checks$warn_count) > 0) {
+  all_warnings <- all_checks |>
+    dplyr::filter(warn_count > 0)
+  httr::POST(
+    "https://hc-ping.com/a7daff6f-da2d-4fd9-b467-1e897951b567/fail",
+    body = jsonlite::toJSON(all_warnings)
+  )
+}
+
+if (sum(all_warnings$warn_count) == 0) {
+  curr_status <- all_checks |>
+    dplyr::distinct(metric, metric_type, value)
+  httr::POST(
+    "https://hc-ping.com/a7daff6f-da2d-4fd9-b467-1e897951b567",
+    body = jsonlite::toJSON(curr_status)
+  )
+}
+```
